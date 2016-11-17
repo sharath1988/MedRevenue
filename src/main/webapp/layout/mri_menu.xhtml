@@ -1,0 +1,34 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:p="http://primefaces.org/ui">
+
+	<h:form>
+		
+		<p:menubar>
+		
+			<p:submenu label="Home" icon="ui-icon-home">
+				<p:menuitem value="VCHS Budget Module" url="#{menuBean.vchsBudgetModuleUrl}" icon="ui-icon-carat-1-e"/>
+			</p:submenu>
+		
+			<p:submenu label="La Jolla MRI" icon="ui-icon-link" rendered="#{menuBean.isBudgetAdmin}">
+				<p:menuitem value="Manage LJMRI tRVU"
+					url="/views/admin/ljmriTrvu.html" icon="ui-icon-carat-1-e" />					
+				<p:menuitem value="YTD Report"
+					url="/views/admin/ytd.html" icon="ui-icon-document" />					
+				
+			</p:submenu>			
+			
+			<p:menuitem style="position: absolute; right: 10px;" value="Login"
+				url="/views/loggedin.html" icon="ui-icon-extlink"
+				rendered="#{!badgIdentity.loggedIn}" />
+
+			<p:menuitem style="position: absolute; right: 10px;" value="Logout"
+				url="#{appInfo.logoutRedirect}"
+				icon="ui-icon-extlink" rendered="#{badgIdentity.loggedIn}" />
+
+		</p:menubar>
+	</h:form>
+
+</ui:composition>

@@ -1,0 +1,439 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:p="http://primefaces.org/ui">
+	
+	<h:panelGroup rendered="#{empty medGrpRevenueWorksheetView}">
+		<em>No providers to display.</em>
+	</h:panelGroup>	
+
+	<p:blockUI
+		widgetVar="blockWV"
+		block="revenueWorksheetForm:worksheetTable" 
+		trigger="applyPercentageForm:applyPercentageChange,
+				resetProjections,
+				revenueWorksheetForm:worksheetTable:changeRevenueWorksheetMode,
+				revenueWorksheetForm:worksheetTable:changeRevenueWorksheetSos">
+		<p:graphicImage library="theme" name="img/progress.gif"/>
+	</p:blockUI>
+	
+	<!--  PROVIDER TOTALS -->
+	<h:form id="revenueWorksheetForm" rendered="#{not empty medGrpRevenueWorksheetView}">
+	
+	<p:dialog id="removeProviderDialog" 
+				header="Remove Provider from Worksheet"
+				widgetVar="removeProviderDialogVar" 
+				styleClass="remove-provider-overlay" 
+				hideEffect="fade" 
+				draggable="false" 
+				modal="true"
+				resizable="false"
+				closable="false">
+		<div class="section">
+			<h:outputText value="Are you sure you want to remove the selected provider?"/>
+		</div>
+		<div class="section">
+			<p:commandButton 
+				id="removeProviderOK"
+				value="OK" 
+				styleClass="remove-provider-btn"/>
+			<p:commandButton 
+				id="removeProviderCancel"
+				value="Cancel"
+				styleClass="remove-provider-cancel-btn"/>
+		</div>
+	</p:dialog>
+	<p:remoteCommand 
+		name="removeProviderRemoteCmd" 
+		onstart="PF('blockWV').show()" 
+		oncomplete="PF('blockWV').hide(); $.fn.clearFilter();" 
+		action="#{medGrpRevenueWorksheetView.removeProvider}" 
+		update=":container,:saveStatus,:msg"/>
+	<p:remoteCommand 
+		name="noRemovableProvidersRemoteCmd"
+		onstart="PF('blockWV').show()"
+		oncomplete="PF('blockWV').hide(); $.fn.clearFilter();"
+		action="#{medGrpRevenueWorksheetView.noRemovableProviders}" 
+		update=":saveStatus,:msg"/>
+				
+	<!-- PROVIDER LEVEL REVENUE WORKSHEETS -->
+	<p:dataTable var="varWorksheet" id="worksheetTable"
+		widgetVar="revenueWorksheetTable"
+		value="#{medGrpRevenueWorksheetView.revenueWorksheetList}"
+		emptyMessage="There are no providers for this division."
+		styleClass="revenue-worksheet-table" stickyHeader="false" scrollable="true" scrollHeight="540" scrollWidth="100%"
+		selectionMode="multiple" rowKey="#{varWorksheet.id}" selection="#{medGrpRevenueWorksheetView.selectedProvidersToMerge}">
+		<!--  TODO BIND SCROLL HEIGHT dynamically based on rows 36 pixels per row -->
+		
+		<f:facet name="header">
+			<div class="revenue-worksheet-toolbar">
+				<div class="utilities">
+					<p:menuButton value="Providers" styleClass="test">
+						<p:menuitem 
+							styleClass="add-provider-menuitem"
+							value="Add Existing Provider..."  
+							title="Add a provider that has already been entered in the system but is missing from the worksheet."
+							icon="ui-icon-plus"/>
+						<p:menuitem
+							styleClass="add-future-provider-menuitem"
+							value="Add Future Provider..."
+							title="Create a future employee and add a worksheet row for them to the worksheet."
+							icon="ui-icon-plus"/>
+						<p:menuitem 
+							styleClass="remove-provider-menuitem"
+							value="Remove Provider..." 
+							title="Remove an added provider from the worksheet."
+							icon="ui-icon-close">
+						</p:menuitem>
+
+						<p:menuitem
+							value="Merge Providers" 
+							title="Merge two provider records."
+							icon="ui-icon-arrowthickstop-1-s" oncomplete="PF('mergeConfirm').show()">
+						</p:menuitem>						
+					</p:menuButton>
+
+				
+					<p:dialog id="mergeConfirm" widgetVar="mergeConfirm" header="Merge Providers Confirmation" width="600">
+										
+						<p:panel>
+					
+							<h:outputText value="You can select providers to merge by holding CTRL + CLICK on the revenue work." /><br/>
+							<h:outputText value="Are you sure you want to merge these providers?" /><br/>
+							<h:outputText value="The 99* record will be merged into the legitamate EIN record." /><br/>
+							<p:commandButton actionListener="#{medGrpRevenueWorksheetView.mergeProviders}" update=":saveStatus, worksheetTable"
+								oncomplete="PF('mergeConfirm').hide()" value="Merge Providers" title="Merge Providers"/>
+						</p:panel>
+					</p:dialog>
+					<div class="ui-widget-content excel-button">
+						<h:commandLink>
+							<p:graphicImage library="theme" name="img/excel.png" alt="Export to Microsoft Excel" title="Export to Microsoft Excel"/>
+							<p:dataExporter type="xls" target="worksheetTable" fileName="#{medGrpRevenueWorksheetView.excelFileNamePrefix}-#{divisionInfoBean.divisionInfo.departmentId}_div-#{divisionInfoBean.divisionInfo.divisionId}"
+								pageOnly="false" postProcessor="#{customDataExporter.revenueWorksheetPostProcess}"/>
+						</h:commandLink>
+					</div>
+				</div>
+				
+				<p:outputLabel for="globalFilter">Search:</p:outputLabel>
+				<p:inputText id="globalFilter" styleClass="worksheet-search-filter"/>
+			
+				<div class="column-togglers">
+					<h:panelGroup styleClass="site-of-service" rendered="#{divisionInfoBean.divisionInfo.isPsychiatry}">
+						<p:selectOneButton id="changeRevenueWorksheetSos" value="#{medGrpRevenueWorksheetController.sos}">
+							<f:selectItem itemLabel="Inpatient &amp; Outpatient" itemValue="BOTH"/>
+							<f:selectItem itemLabel="Inpatient" itemValue="INPATIENT"/>
+							<f:selectItem itemLabel="Outpatient" itemValue="OUTPATIENT"/>
+							<p:ajax event="change"
+								update=":container,worksheetTable" 
+								listener="#{medGrpRevenueWorksheetController.handleSosChange}"/>
+						</p:selectOneButton>
+					</h:panelGroup>
+						
+					<p:selectOneButton styleClass="revenue-worksheet-mode" id="changeRevenueWorksheetMode" value="#{medGrpRevenueWorksheetView.revenueWorksheetMode}">
+						<f:selectItem itemLabel="#{budgetMetadata.priorBudgetYearLabel}" itemValue="LAST_CALENDAR_YEAR"/>
+						<f:selectItem itemLabel="#{rollingMetadata.rolling12moStartLabel} - #{rollingMetadata.rolling12moEndLabel}" itemValue="ROLLING_12_MONTHS"/>
+						<p:ajax event="change" 
+							update="worksheetTable"/>
+					</p:selectOneButton>
+				</div>
+			</div>
+			<div class="remove-provider-message">
+				Click on a row to select the provider to remove, or click anywhere else to cancel.
+			</div>
+		</f:facet>
+															        		      		
+		<p:column width="22%" sortBy="#{varWorksheet.employeeFullName}" styleClass="provider-col" filterBy="#{varWorksheet.employeeFullName}" filterMatchMode="contains">
+			<f:facet name="header">
+				<div>Provider</div>
+			</f:facet>
+			<f:facet name="filter">
+				<p:inputText rendered="#{false}"/>
+			</f:facet>
+			<span data-removable="#{varWorksheet.removable and !varWorksheet.rollingOnly}" data-id="#{varWorksheet.id}">
+				<h:outputText value="#{varWorksheet.employeeFullName}" id="providerLbl1" style="cursor: help" styleClass="rolling-12-months" rendered="#{varWorksheet.rollingOnly}"/>
+				<h:outputText value="#{varWorksheet.employeeFullName}" id="providerLbl2" style="cursor: help" rendered="#{!varWorksheet.rollingOnly}"/>
+			</span>
+			<p:tooltip for="providerLbl1, providerLbl2" trackMouse="true">
+				<p:panelGrid>
+					<f:facet name="header">
+						<p:row>
+							<p:column colspan="3">
+								<h:outputText value="#{varWorksheet.employeeFullName}" />
+							</p:column>
+						</p:row>
+						<p:row>
+							<p:column>EIN</p:column>
+							<p:column>PPS Status</p:column>
+							<p:column>Home Dept</p:column>
+						</p:row>
+					</f:facet>
+					<p:row>
+						<p:column>
+							<h:outputText value="#{varWorksheet.employeeUcsdId}" />
+						</p:column>
+						<p:column>
+							<h:outputText value="#{varWorksheet.status}" />
+						</p:column>
+						<p:column>
+							<h:outputText value="#{varWorksheet.homeDepartmentCode}" />
+						</p:column>
+					</p:row>
+				</p:panelGrid>
+			</p:tooltip>
+			<f:facet name="footer">
+				<div style="text-align: right">TOTALS</div>
+			</f:facet>			
+		</p:column>
+		
+		<p:column width="80" sortBy="#{varWorksheet.sos}" rendered="#{divisionInfoBean.divisionInfo.isPsychiatry}">
+			<f:facet name="header">
+				<div class="current-year">Site of<br/>Service</div>
+			</f:facet>
+			<h:outputText id="siteOfService" value="#{varWorksheet.sos}" styleClass="current-year"/>
+			<f:facet name="footer">
+				<div></div>
+			</f:facet>
+		</p:column>
+								
+		<p:column width="80" sortBy="#{varWorksheet.projCharges}">
+			<f:facet name="header">
+				<div class="current-year">#{budgetMetadata.currentBudgetYearLabel}<br/>Charges<br/></div>
+			</f:facet>
+			<h:outputText id="projCharges" value="#{varWorksheet.projCharges}" styleClass="current-year">
+				<f:convertNumber type="currency" currencySymbol=""/>
+			</h:outputText>
+			<f:facet name="footer">
+				<h:outputText styleClass="projectedValues" id="totalProjCharges" value="#{paymentInformationView.paymentInformation.totalProjCharges}">
+					<f:convertNumber type="currency" currencySymbol=""/>
+				</h:outputText>
+			</f:facet>
+		</p:column>								
+
+		<!-- Asked to not remove this permanently so just rendering false -->
+		<p:column width="80" sortBy="#{varWorksheet.projCollections}" rendered="false">
+			<f:facet name="header">
+				<div class="current-year">#{budgetMetadata.currentBudgetYearLabel}<br/>Collections</div>
+			</f:facet>		
+			<h:outputText id="projCollections" value="#{varWorksheet.projCollections}" styleClass="current-year">
+				<f:convertNumber type="currency" currencySymbol=""/>
+			</h:outputText>
+			<f:facet name="footer">
+				<h:outputText styleClass="projectedValues" id="totalProjCollections" value="#{paymentInformationView.paymentInformation.totalProjCollections}">
+					<f:convertNumber type="currency" currencySymbol=""/>
+				</h:outputText>
+			</f:facet>			
+		</p:column>
+		<!-- end false render -->
+		
+		<p:column width="80" sortBy="#{varWorksheet.projTrvus}">
+			<f:facet name="header">
+				<div class="current-year">#{budgetMetadata.currentBudgetYearLabel}<br/>tRVUs</div>
+			</f:facet>		
+			<h:outputText id="projTrvus" value="#{varWorksheet.projTrvus}" styleClass="current-year">
+				<f:convertNumber type="currency" currencySymbol="" maxFractionDigits="2"/>
+			</h:outputText>
+			<f:facet name="footer">
+				<h:outputText styleClass="projectedValues" id="totalProjTrvus" value="#{paymentInformationView.paymentInformation.totalProjTrvus}">
+					<f:convertNumber type="currency" currencySymbol="" maxFractionDigits="2"/>
+				</h:outputText>
+			</f:facet>			
+		</p:column>
+
+		<!-- Editable column -->				
+		<p:column width="80" sortBy="#{varWorksheet.projWrvus}">
+			
+			<f:facet name="header">
+				<div class="current-year">#{budgetMetadata.currentBudgetYearLabel}<br/>wRVUs</div>
+			</f:facet>
+			<p:inputText rendered="#{!varWorksheet.rollingOnly}"
+				value="#{varWorksheet.projWrvus}" 
+				maxlength="12" 
+				style="width:80px; text-align:right" 
+				id="wrvuInput"
+				styleClass="highlight enter-entry">
+				<f:attribute name="editedWorksheet" value="#{varWorksheet}"/>
+				<f:convertNumber type="number" minFractionDigits="2" maxFractionDigits="2"/>
+				<p:ajax 
+					event="change" 
+					listener="#{medGrpRevenueWorksheetController.editWrvusOnBlur}" 
+					resetValues="true"
+					update="wrvuInput,worksheetTable:projCharges,worksheetTable:projCollections,worksheetTable:projTrvus,worksheetTable:percentChange,@(.projectedValues),:msg,:saveStatus,:container"/>
+			</p:inputText>
+			<f:facet name="footer">
+				<h:outputText styleClass="projectedValues" id="totalProjWrvus" value="#{paymentInformationView.paymentInformation.totalProjWrvus}">
+					<f:convertNumber type="currency" currencySymbol="" maxFractionDigits="2"/>
+				</h:outputText>
+			</f:facet>			
+		</p:column>
+
+		<!-- PRIOR YEAR -->		
+		<p:column width="80" sortBy="#{varWorksheet.wrvuPercentChange}">
+			<f:facet name="header">
+				<div class="prior-year">% Change / #{budgetMetadata.priorBudgetYearLabel}</div>
+			</f:facet>		
+			<h:outputText 
+				id="percentChange"
+				value="#{varWorksheet.wrvuPercentChange}"
+				styleClass="#{varWorksheet.wrvuPercentChange eq '0.00' or varWorksheet.wrvuPercentChange eq 'N/A' ? '': 'change'}"/>
+		</p:column>						
+
+		<p:column width="80" rendered="#{medGrpRevenueWorksheetView.revenueWorksheetMode.lastCalendarYear}" sortBy="#{varWorksheet.priorYearCharges}">
+			<f:facet name="header">
+				<div class="prior-year">#{budgetMetadata.priorBudgetYearLabel}<br/>Charges</div>
+			</f:facet>		
+			<h:outputText styleClass="prior-year" value="#{varWorksheet.priorYearCharges}">
+				<f:convertNumber type="currency" currencySymbol=""/>
+			</h:outputText>
+			<h:outputText styleClass="prior-year" value="N/A" rendered="#{varWorksheet.priorYearCharges eq null}"/>
+			<f:facet name="footer">
+				<h:outputText value="#{paymentInformationView.paymentInformation.totalPriorCharges}">
+					<f:convertNumber type="currency" currencySymbol=""/>
+				</h:outputText>
+			</f:facet>
+		</p:column>								
+
+		<!-- rendering display of this column false.  Was asked not to permanently remove just in case -->
+ 		<!-- <p:column width="80" rendered="#{medGrpRevenueWorksheetView.revenueWorksheetMode.lastCalendarYear}" sortBy="#{varWorksheet.priorYearCollections}"> -->
+ 		<p:column rendered="false">
+			<f:facet name="header">
+				<div class="prior-year">#{budgetMetadata.priorBudgetYearLabel}<br/>Collections</div>
+			</f:facet>
+			<h:outputText styleClass="prior-year" value="#{varWorksheet.priorYearCollections}">
+				<f:convertNumber type="currency" currencySymbol=""/>
+			</h:outputText>
+			<h:outputText styleClass="prior-year" value="N/A" rendered="#{varWorksheet.priorYearCollections eq null}"/>
+			<f:facet name="footer">
+				<h:outputText value="#{paymentInformationView.paymentInformation.totalPriorCollections}">
+					<f:convertNumber type="currency" currencySymbol=""/>
+				</h:outputText>
+			</f:facet>			
+		</p:column>
+		<!-- end false render -->
+		
+		<p:column width="80" rendered="#{medGrpRevenueWorksheetView.revenueWorksheetMode.lastCalendarYear}" sortBy="#{varWorksheet.priorYearTrvus}">
+			<f:facet name="header">
+				<div class="prior-year">#{budgetMetadata.priorBudgetYearLabel}<br/>tRVUs</div>
+			</f:facet>		
+			<h:outputText styleClass="prior-year" value="#{varWorksheet.priorYearTrvus}">
+				<f:convertNumber type="currency" currencySymbol="" maxFractionDigits="2"/>
+			</h:outputText>
+			<h:outputText styleClass="prior-year" value="N/A" rendered="#{varWorksheet.priorYearTrvus eq null}"/>
+			<f:facet name="footer">
+				<h:outputText value="#{paymentInformationView.paymentInformation.totalPriorTrvus}">
+					<f:convertNumber type="currency" currencySymbol="" maxFractionDigits="2"/>
+				</h:outputText>
+			</f:facet>			
+		</p:column>
+		
+		<p:column width="80" rendered="#{medGrpRevenueWorksheetView.revenueWorksheetMode.lastCalendarYear}" sortBy="#{varWorksheet.priorYearWrvus}">
+			<f:facet name="header">
+				<div class="prior-year">#{budgetMetadata.priorBudgetYearLabel}<br/>wRVUs</div>
+			</f:facet>		
+			<h:outputText styleClass="prior-year" value="#{varWorksheet.priorYearWrvus}">
+				<f:convertNumber type="currency" currencySymbol="" maxFractionDigits="2"/>
+			</h:outputText>
+			<h:outputText styleClass="prior-year" value="N/A" rendered="#{varWorksheet.priorYearWrvus eq null}"/>
+			<f:facet name="footer">
+				<h:outputText value="#{paymentInformationView.paymentInformation.totalPriorWrvus}">
+					<f:convertNumber type="currency" currencySymbol="" maxFractionDigits="2"/>				
+				</h:outputText>
+			</f:facet>			
+		</p:column>
+		
+		<!-- ROLLING -->
+		<p:column width="80" rendered="#{medGrpRevenueWorksheetView.revenueWorksheetMode.rolling12Months}" sortBy="#{varWorksheet.rollingCharges}">
+			<f:facet name="header">
+				<div class="rolling-12-months">Roll. 12 mo.<br/>Charges</div>
+			</f:facet>		
+			<h:outputText styleClass="rolling-12-months" value="#{varWorksheet.rollingCharges}">
+				<f:convertNumber type="currency" currencySymbol=""/>
+			</h:outputText>
+			<h:outputText styleClass="rolling-12-months" value="N/A" rendered="#{varWorksheet.rollingCharges eq null}"/>
+			<f:facet name="footer">
+				<h:outputText value="#{paymentInformationView.paymentInformation.rollingTotalCharges}">
+					<f:convertNumber type="currency" currencySymbol=""/>
+				</h:outputText>
+			</f:facet>
+		</p:column>								
+
+		<!-- Asked to not remove this permanently so just rendering false -->
+		<!-- <p:column width="80" rendered="#{medGrpRevenueWorksheetView.revenueWorksheetMode.rolling12Months}" sortBy="#{varWorksheet.rollingCollections}"> -->
+		<p:column rendered="false">
+			<f:facet name="header">
+				<div class="rolling-12-months">Roll. 12 mo.<br/>Collections</div>
+			</f:facet>
+			<h:outputText styleClass="rolling-12-months" value="#{varWorksheet.rollingCollections}">
+				<f:convertNumber type="currency" currencySymbol=""/>
+			</h:outputText>
+			<h:outputText styleClass="rolling-12-months" value="N/A" rendered="#{varWorksheet.rollingCollections eq null}"/>
+			<f:facet name="footer">
+				<h:outputText value="#{paymentInformationView.paymentInformation.rollingTotalCollections}">
+					<f:convertNumber type="currency" currencySymbol=""/>
+				</h:outputText>
+			</f:facet>			
+		</p:column>
+		<!--  end false render -->
+		
+		<p:column width="80" rendered="#{medGrpRevenueWorksheetView.revenueWorksheetMode.rolling12Months}" sortBy="#{varWorksheet.rollingTrvus}">
+			<f:facet name="header">
+				<div class="rolling-12-months">Roll. 12 mo.<br/>tRVUs</div>
+			</f:facet>		
+			<h:outputText styleClass="rolling-12-months" value="#{varWorksheet.rollingTrvus}">
+				<f:convertNumber type="currency" currencySymbol="" maxFractionDigits="2"/>
+			</h:outputText>
+			<h:outputText styleClass="rolling-12-months" value="N/A" rendered="#{varWorksheet.rollingTrvus eq null}"/>
+			<f:facet name="footer">
+				<h:outputText value="#{paymentInformationView.paymentInformation.rollingTotalTrvus}">
+					<f:convertNumber type="currency" currencySymbol="" maxFractionDigits="2"/>
+				</h:outputText>
+			</f:facet>			
+		</p:column>
+		
+		<p:column width="80" rendered="#{medGrpRevenueWorksheetView.revenueWorksheetMode.rolling12Months}" sortBy="#{varWorksheet.rollingWrvus}">
+			<f:facet name="header">
+				<div class="rolling-12-months">Roll. 12 mo.<br/>wRVUs</div>
+			</f:facet>		
+			<h:outputText styleClass="rolling-12-months" value="#{varWorksheet.rollingWrvus}">
+				<f:convertNumber type="currency" currencySymbol="" maxFractionDigits="2"/>
+			</h:outputText>
+			<h:outputText styleClass="rolling-12-months" value="N/A" rendered="#{varWorksheet.rollingWrvus eq null}"/>
+			<f:facet name="footer">
+				<h:outputText value="#{paymentInformationView.paymentInformation.rollingTotalWrvus}">
+					<f:convertNumber type="currency" currencySymbol="" maxFractionDigits="2"/>				
+				</h:outputText>
+			</f:facet>
+		</p:column>																					
+	</p:dataTable>
+	
+	</h:form>	
+		
+	<br/>
+		
+	<!-- Apply percentage change -->
+		<p:panelGrid columns="1" style="width: 60%;">
+			<p:row>
+				<div style="font-weight: bold">
+					APPLY A PERCENTAGE CHANGE TO ALL PROVIDERS <br/>
+					<span style="font-size: 9pt">(based on #{budgetMetadata.priorBudgetYearLabel} static figures, apply % across the board, overwrite existing individual amounts)</span>
+				</div>
+			</p:row>
+			<p:row>
+				<h:form id="applyPercentageForm" rendered="#{not empty medGrpRevenueWorksheetView}" styleClass="apply-percentage">
+					<p:message for="appliedPercentChange"/>
+					<p:outputLabel value="% Change: " for="appliedPercentChange"/>
+					<p:inputText id="appliedPercentChange" value="#{medGrpRevenueWorksheetView.appliedPercentChange}" maxlength="7" required="true"/>
+					<p:tooltip for="appliedPercentChange" value="Example: Enter 2 percent as .02" trackMouse="true"/>
+					
+					<p:commandButton id="applyPercentageChange" value="Change" action="#{medGrpRevenueWorksheetController.applyPercentChangeOnClick}" update=":container, :saveStatus, :msg" oncomplete="$.fn.clearFilter();">
+						<p:confirm header="Apply Percentage to #{divisionInfoBean.divisionInfo.departmentName} - #{divisionInfoBean.divisionInfo.divisionName}?" icon="ui-icon-alert"
+							message="A percentage will be applied to ALL wRVUs for this division and all entered values will be overwritten. Do you wish to continue?"/>								
+					</p:commandButton>
+				</h:form>
+				<p:commandButton id="resetProjections" value="Reset Projections" action="#{medGrpRevenueWorksheetController.resetPercentChangeOnClick}" update=":container, :saveStatus, :msg, applyPercentageForm:appliedPercentChange" oncomplete="$.fn.clearFilter();">
+					<p:confirm header="Reset Projections?" icon="ui-icon-alert"
+						message="This will reset ALL of your current budget year wRVUs to the prior year's values for this division and recalculate projections. Do you wish to continue?"/>
+				</p:commandButton>
+			</p:row>
+		</p:panelGrid>
+</ui:composition>

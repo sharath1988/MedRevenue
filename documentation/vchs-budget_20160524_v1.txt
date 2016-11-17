@@ -1,0 +1,283 @@
+To:	O'Donnell, Edward; Yebba, Michael
+Cc:	Kaino, Cheryl
+Subject:	RE: Production Database Modification vchs-budget #1
+
+This has been completed and the validation confirmed. 
+
+input_amount    
+ --------------- 
+ 13112047.43     
+ 13112047.44    
+
+
+In future request please include the code to backup the table before the changes as part of the release 
+as we discussed in the last Team Meeting.
+
+-- ======================================
+-- Backups 
+
+IF OBJECT_ID('[BackupArea].[dbo].BudgetValue') IS NOT NULL
+    DROP TABLE [BackupArea].[dbo].BudgetValue
+/
+-- Create backup table 
+select * into [BackupArea].[dbo].BudgetValue from [vchs-budget].[dbo].BudgetValue
+/
+
+
+Also, per the updated Database release form here: 
+
+http://som-
+qa4.ucsd.edu/mwiki/BADG_Private:Development/BadgOperatingPlan/BadgDeveloperResponsibilities/R
+eleaseProcedures/ProductionDatabaseModification 
+
+ 
+Name of Release ({databaseName}_yyyymmdd_v#) :
+
+ReleaseName: vchs-budget_20160524_v1   was saved in SVN. 
+
+Glenn 
+
+From: O'Donnell, Edward  
+Sent: Tuesday, May 24, 2016 10:57 AM 
+To: Strout, Glenn <gstrout@mail.ucsd.edu>; Yebba, Michael <myebba@ucsd.edu> 
+Cc: Kaino, Cheryl <ckaino@mail.ucsd.edu> 
+Subject: Production Database Modification vchs-budget #1
+
+Date of Request:
+5/24/2016
+ 
+Requested date/time of the release:
+As soon as doable.
+ 
+What database needs to be modified?
+Vchs-budget 
+ 
+Reason(s) for the change ? stale data in lineitems=203,209, DG=1 is stale and needs to be redone. 
+
+Does this affect a TableSync job? No
+ 
+Before the release should the entire database be backed up  ? No.
+ 
+Before the release should specific database tables be backed up ? no.
+List the step-by-step release process.
+
+
+Run these commands from top to bottom in the vchs-budget DB:
+
+update bv
+set bv.CalculatedValue =0
+from dbo.BudgetValue bv 
+inner join budget b on bv.BudgetId=b.BudgetId
+where bv.LineItemId IN (203,209)
+and bv.MissionId = 2
+and b.datagroupId = 1
+/
+drop procedure [dbo].[p_fetch_mgfs]
+/
+
+CREATE PROCEDURE [dbo].[p_fetch_mgfs]
+AS BEGIN
+/* This proc gets START  lineitems 8,16,17,18
+   missionId is always 2 for clinical. It also gets care payment.
+    For DG=0 lineitemId is 19, DG=1 lineItemId = 208
+*/
+CREATE TABLE #DataTable (missionId int, divisionId int, input_amount decimal(24,4), datagroupId int);
+DECLARE @DataTable AS BudgetValueTableType;
+DECLARE @LineItemId int;
+DECLARE @datagroupId int;
+DECLARE @missionId int;
+SET @datagroupId = 1;
+SET @missionId = 2;
+DECLARE @stmt nvarchar(250);
+DECLARE @LINEITEM TABLE (LineItemId int)
+INSERT INTO @LINEITEM (LineItemId)
+SELECT LineItemId FROM hsFiscal.dbo.FinManPLLineItems WHERE LineItemId IN (8,16,17,18) order by 
+LineItemId;
+WHILE EXISTS (SELECT * FROM @LINEITEM)
+    BEGIN
+    SELECT TOP 1 @LineItemId = LineItemId FROM @LINEITEM;
+        SET @stmt = 'INSERT INTO #DataTable (missionId, divisionId, input_amount, datagroupId) SELECT 2 
+as missionId, cast(divisionId as int) as divisionId, lineItem_' 
+                + CAST(@LineItemId as varchar(2))  
+                + ' as input_amount, 1 as datagroupId FROM [vchs-budget].dbo.v_refresh_mgfs;'
+    EXEC (@stmt)
+    /* have to put in this hack to switch from #DataTable to @DataTable so it feeds properly to the proc 
+below */
+    INSERT INTO @DataTable (missionId, divisionId, input_amount, datagroupId) SELECT * from 
+#DataTable;
+    /* call the proc: [dbo].[p_check_budget] to make sure
+        the budget table and the budgetValue table have the existing
+        values */ 
+ 
+    exec [dbo].[p_check_budget] @DataTable, @LineItemId, @datagroupId;
+    DELETE FROM @DataTable;
+    DELETE FROM #DataTable;
+    DELETE FROM @LINEITEM WHERE LineItemId = @LineItemId;
+    END;
+        -- end loop 
+    SET @datagroupId = 0;
+    SET @LineItemId = 19;
+    SET @missionId = 2;
+    -- ---------- START lineitemId=19, datagroupid=0, missionId=2
+    INSERT INTO @DataTable (missionId, divisionId, input_amount, datagroupId) 
+    SELECT @missionId as missionId, divisionId, sum(input_amount) as input_amount, @datagroupId as 
+datagroupId 
+    FROM [vchs-budget].dbo.v_refresh_care_payment
+    where divisionId is not null and somMajorGroupId not in (16,26,40,41,42,43) 
+    group by divisionId
+    order by divisionId;
+    
+    /* call the proc: [dbo].[p_check_budget] to make sure
+        the budget table and the budgetValue table have the existing
+        values */ 
+ 
+    exec [dbo].[p_check_budget] @DataTable, @LineItemId, @datagroupId;
+    DELETE FROM @DataTable
+    -- ---------- end AHS DG=0 care payment for all divisions != 244
+    -- ---------- start MEDGRP care payment just for divisionId = 244, no other for DG=1
+    SET @datagroupId = 1;
+    SET @LineItemId = 208;
+    SET @missionId = 2;
+    INSERT INTO @DataTable(missionId, divisionId, input_amount, datagroupId)
+        SELECT
+                @missionId as missionId, 244 as divisionId, sum(bv.CalculatedValue) + 
+sum(bv.ManualAdjustment) as input_amount, @datagroupId as datagroupId
+        FROM  [vchs-budget].dbo.BudgetValue bv inner join dbo.Budget b on bv.BudgetId=b.BudgetId
+        where b.datagroupId=0 and bv.LineItemId = 19 
+    /* call the proc: [dbo].[p_check_budget] to make sure
+        the budget table and the budgetValue table have the existing
+        values */ 
+ 
+    exec [dbo].[p_check_budget] @DataTable, @LineItemId, @datagroupId;
+    DELETE FROM @DataTable;
+    -- done with lineItemId=208
+    -- ---------- start MEDGRP care payment for DG=1, lineitemId = 209
+    SET @datagroupId = 1;
+    SET @LineItemId = 209;
+  SET @missionId = 2;
+    INSERT INTO @DataTable(missionId, divisionId, input_amount, datagroupId)
+        SELECT
+                @missionId as missionId, somDivisionId as divisionId, sum(budgetAmt * deans_tax) as 
+input_amount, @datagroupId as datagroupId
+        FROM  [vchs-budget].dbo.V_VAL_SRC_DATA_MEDGRP_ASSESSMENTS
+        group by somDivisionId;
+    /* call the proc: [dbo].[p_check_budget] to make sure
+        the budget table and the budgetValue table have the existing
+        values */ 
+ 
+    exec [dbo].[p_check_budget] @DataTable, @LineItemId, @datagroupId;
+    DELETE FROM @DataTable;
+    -- done with lineItemId=209
+    -- now do lineItemId=13
+    SET @datagroupId = 1;
+    SET @LineItemId = 13;
+    SET @missionId = 2;
+    INSERT INTO @DataTable(missionId, divisionId, input_amount, datagroupId)
+        SELECT
+                @missionId as missionId, divisionId, input_amount, @datagroupId as datagroupId
+        FROM  [vchs-budget].dbo.v_refresh_medgrp_revenue_other_income;
+    /* call the proc: [dbo].[p_check_budget] to make sure
+        the budget table and the budgetValue table have the existing
+        values */ 
+    exec [dbo].[p_check_budget] @DataTable, @LineItemId, @datagroupId;
+    DELETE FROM @DataTable;
+    /* start MEDGRP expense lineItems=200,201,202,203,204,210 */
+    SET @datagroupId = 1;
+    DELETE FROM @LINEITEM;
+    INSERT INTO @LINEITEM (LineItemId)
+    SELECT LineItemId FROM hsFiscal.dbo.FinManPLLineItems WHERE LineItemId IN 
+(200,201,202,203,204,210) order by LineItemId;
+    WHILE EXISTS (SELECT * FROM @LINEITEM)
+        BEGIN
+        SELECT TOP 1 @LineItemId = LineItemId FROM @LINEITEM;
+        INSERT INTO @DataTable(missionId, divisionId, input_amount, datagroupId)
+        SELECT
+                MissionId as missionId, somDivisionId as divisionId, projExpense as input_amount, 
+@datagroupId as datagroupId
+        FROM [dbo].[V_MEDGRP_EXPENSE_BY_DIV]
+        WHERE FinManLineItemId = @LineItemId
+
+        /* call the proc: [dbo].[p_check_budget] to make sure
+        the budget table and the budgetValue table have the existing
+        values */ 
+        exec [dbo].[p_check_budget] @DataTable, @LineItemId, @datagroupId;
+        DELETE FROM @DataTable;
+        DELETE FROM @LINEITEM WHERE LineItemId = @LineItemId;
+        END;
+        -- end loop 
+    --  ---------- DONE MEDGRP
+    -- start AHS lineitems 200,201,202,203,204, 209,210 for DG=0
+    SET @datagroupId = 0;
+    DELETE FROM @DataTable;
+    DELETE FROM @LINEITEM;
+    INSERT INTO @LINEITEM (LineItemId)
+    SELECT LineItemId FROM hsFiscal.dbo.FinManPLLineItems WHERE LineItemId IN 
+(200,201,202,203,204,209,210) order by LineItemId;
+    WHILE EXISTS (SELECT * FROM @LINEITEM)
+        BEGIN
+        SELECT TOP 1 @LineItemId = LineItemId FROM @LINEITEM;
+        INSERT INTO @DataTable (missionId, divisionId, input_amount, datagroupId)
+        SELECT MissionId as missionId, somDivisionId as divisionId, projExpense as input_amount, 
+data_group as datagroupId 
+            FROM [vchs-budget].[dbo].[V_VCO_EXPENSE_BY_DIV]
+            WHERE FinManLineItemId = @LineItemId;
+        /* call the proc: [dbo].[p_check_budget] to make sure
+        the budget table and the budgetValue table have the existing
+        values */ 
+        exec [dbo].[p_check_budget] @DataTable, @LineItemId, @datagroupId;
+        DELETE FROM @DataTable;
+        DELETE FROM @LINEITEM WHERE LineItemId = @LineItemId;
+        END;
+        -- end loop 
+END;
+GO
+/
+exec p_fetch_mgfs
+/
+
+
+
+
+
+exec p_fetch_medgrp_staffing
+/
+
+
+Is this part of an application update/release ?
+No.
+ 
+What testing was done to ensure the success of this release?
+Testing was done on dev and qa
+ 
+Describe how to determine the success of the release
+
+This query should also return one row, or if two rows, very very close:
+
+select sum(CalculatedValue) as input_amount
+from Budget b
+join BudgetValue bv on bv.BudgetId = b.BudgetId
+where b.datagroupId = 1 and bv.LineItemId in (209)
+and bv.MissionId = 2
+union
+select sum(budgetAmt * deans_tax) as input_amount
+from [vchs-budget].dbo.V_VAL_SRC_DATA_MEDGRP_ASSESSMENTS
+/
+
+This query should also return one row, or if two rows, very very close:
+
+select sum(bv.CalculatedValue) as input_amount
+from BudgetValue bv
+join Budget b on bv.BudgetId = b.BudgetId
+where b.datagroupId = 1 and bv.LineItemId in (203)
+and bv.MissionId = 2
+union
+SELECT             sum(projExpense) as input_amount
+FROM [dbo].[V_MEDGRP_EXPENSE_BY_DIV]
+WHERE FinManLineItemId = 203
+
+/
+
+Provide SVN location where this document should be saved.
+/svnroot/medgrp-revenue/trunks/documentation
+ 
+ 

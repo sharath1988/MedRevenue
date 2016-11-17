@@ -1,0 +1,117 @@
+From:	O'Donnell, Edward
+Sent:	Tuesday, May 17, 2016 12:08 PM
+To:	Roesler, Paul; Strout, Glenn; Yebba, Michael
+Cc:	Kaino, Cheryl
+Subject:	RE: Production Database Modification hsFiscal
+
+Sorry, wrong DB. Just substitute  hsFiscal with vchs-budget
+
+From: Roesler, Paul  
+Sent: Tuesday, May 17, 2016 11:56 AM 
+To: O'Donnell, Edward; Strout, Glenn; Yebba, Michael 
+Cc: Kaino, Cheryl 
+Subject: RE: Production Database Modification hsFiscal
+
+I am not seeing:  hsFiscal.dbo.DeptRollupPLLineItemSectionHeader  table.
+
+Thank you,
+
+Paul Roesler
+
+
+Paul Roesler
+University of California, San Diego
+Office of the Vice Chancellor for Health Sciences | Programmer Analyst III For 
+BADG
+619.543.2113 | proesler@ucsd.edu
+
+1450 Frazee Road | San Diego, CA 92108
+
+From: O'Donnell, Edward  
+Sent: Tuesday, May 17, 2016 11:53 AM 
+To: Strout, Glenn <gstrout@mail.ucsd.edu>; Yebba, Michael <myebba@ucsd.edu> 
+Cc: Kaino, Cheryl <ckaino@mail.ucsd.edu>; Roesler, Paul <proesler@ucsd.edu> 
+Subject: Production Database Modification hsFiscal
+
+Date of Request:
+5/17/2016
+ 
+Requested date/time of the release:
+As soon as doable.
+ 
+What database needs to be modified?
+hsFiscal (on all 3 servers please)
+ 
+Reason(s) for the change ? Can we modify the LineItemOrd column in hsFiscal.dbo. 
+DeptRollupPLLineItemSectionHeader a bit?  Right now there are several entries that are identical to the 
+ordinals in the hsFiscal.dbo.FinManPLLineItems table. (211,212)
+
+
+Does this affect a TableSync job? No
+ 
+Before the release should the entire database be backed up  ? No.
+ 
+Before the release should specific database tables be backed up ? No.
+List the step-by-step release process.
+
+Run these commands in this order in the hsFiscal DB:
+
+
+update hsFiscal.dbo. DeptRollupPLLineItemSectionHeader set LineItemOrd = 215 where LineItemId = 
+9007
+/
+update hsFiscal.dbo. DeptRollupPLLineItemSectionHeader set LineItemOrd = 218 where LineItemId = 
+9008
+/
+
+Is this part of an application update/release ?
+No.
+ 
+What testing was done to ensure the success of this release?
+I don’t have access to test.
+ 
+Describe how to determine the success of the release
+Run this query, the lineitem = ‘Depreciation’ should be before ‘Total Non Payroll Expense’ and ‘Total 
+Expense’
+
+select LineItemOrd, LineItemId, LineItem,  TypeID, [Type], CategoryId, CategoryName, HeaderType
+from v_DeptRollupPLLineItems where DepartmentId = 303
+and datagroupId = 0
+and LineItemOrd > 200 and LineItemOrd < 250
+order by LineItemOrd, LineItemId
+/
+
+
+Provide SVN location where this document should be saved.
+/svnroot/medgrp-revenue/trunks/documentation
+ 
+ 
+
+use vchs-budget
+/
+
+
+IF OBJECT_ID('[BackupArea].[dbo].DeptRollupPLLineItemSectionHeader') IS NOT NULL
+    DROP TABLE [BackupArea].[dbo].DeptRollupPLLineItemSectionHeader
+/
+-- Create backup table 
+select * into [BackupArea].[dbo].DeptRollupPLLineItemSectionHeader from [vchs-budget].[dbo].DeptRollupPLLineItemSectionHeader
+/
+
+
+
+update [vchs-budget].dbo. DeptRollupPLLineItemSectionHeader set LineItemOrd = 215 where LineItemId = 9007
+/
+update [vchs-budget].dbo. DeptRollupPLLineItemSectionHeader set LineItemOrd = 218 where LineItemId = 9008
+/
+
+
+
+select LineItemOrd, LineItemId, LineItem,  TypeID, [Type], CategoryId, CategoryName, HeaderType
+from v_DeptRollupPLLineItems where DepartmentId = 303
+and datagroupId = 0
+and LineItemOrd > 200 and LineItemOrd < 250
+order by LineItemOrd, LineItemId
+/
+
+

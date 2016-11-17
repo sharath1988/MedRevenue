@@ -1,0 +1,65 @@
+From:	Yebba, Michael
+Sent:	Wednesday, March 09, 2016 2:52 PM
+To:	Roesler, Paul; Kaino, Cheryl; Strout, Glenn
+Subject:	RE: Production Database Modification Request {budget} 
+
+Request for Production Database Modification
+ 
+Date of Request:  3/9/2016
+ 
+Requested date/time of the release: 
+As soon as possible. 
+ 
+What database needs to be modified? Budget in Prod4 MySQL
+ 
+Reason(s) for the change ? Bug found during Rose’s testing in production.  This will fix 
+division totals for care payments.
+ 
+Does this affect a TableSync job?
+No
+ 
+Before the release should the entire database be backed up  ? No
+ 
+ 
+Before the release should specific database tables be backed up ? No
+ 
+ 
+List the step-by-step release process. 
+
+       CREATE OR REPLACE VIEW budget.V_MEDGRP_REVENUE_CARE_PAYMENT_TOTAL_BY_DIV AS
+       SELECT SOM_DIVISION_ID, SUM(PROJ_CARE_PAYMENT_AMOUNT) AS 
+PROJ_CARE_PAYMENT_AMOUNT 
+       FROM V_MEDGRP_REVENUE_CARE_PAYMENT_DETAIL
+       GROUP BY SOM_DIVISION_ID
+       ORDER BY SOM_DIVISION_ID
+ 
+Is this part of an application update/release ? No
+ 
+What testing was done to ensure the success of this release? 
+Functional testing was performed in the Dev4 and Qa4 environment. 
+
+ 
+Describe how to determine the success of the release: 
+Execute the following SQL validation:
+/*
+Expected Result:
+
+SOM_DIVISION_ID     PROJ_CARE_PAYMENT_AMOUNT    
+ ------------------  --------------------------- 
+ 19                  9705339.4766   
+*/
+select * from V_MEDGRP_REVENUE_CARE_PAYMENT_TOTAL_BY_DIV where SOM_DIVISION_ID = 19
+
+Provide SVN location where this document should be saved. 
+svn+ssh://som-util01.ucsd.edu/opt/svnroot/medgrp-revenue/trunk/documentation
+Should any databases or tables be removed as a result of these changes?  No
+ 
+ 
+Thanks,
+ 
+Michael Yebba / Programmer Analyst
+ 
+Office of the Vice Chancellor, Health Sciences / UC San Diego 
+Business Application Development Group 
+Phone: 619-543-2657 | myebba@ucsd.edu | Tell us how we are doing.
+ 

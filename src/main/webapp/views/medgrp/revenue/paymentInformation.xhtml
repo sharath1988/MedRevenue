@@ -1,0 +1,265 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:p="http://primefaces.org/ui">
+			
+	<h:form>
+		
+		<p:panelGrid columns="1" style="width: 100%" id="paymentInformationGrid">			
+			<p:row>
+				<p:column>
+					<div style="font-weight: bold">
+						PAYMENT INFORMATION<br/>
+						<span style="font-size: 9pt">Enter Increase/Decrease Rate (i.e 2% as "0.02")</span>
+					</div>
+				</p:column>
+			</p:row>
+			
+			<p:row>
+				<p:panelGrid>
+				
+					<!-- HEADER ROW -->
+					<p:row>
+						<p:column>
+							<h:outputText value="Type" styleClass="headerText" />
+						</p:column>
+						<p:column>
+							<h:panelGrid columns="1" style="text-align: center" styleClass="current-year-right">
+								<h:outputText value="#{budgetMetadata.currentBudgetYearLabel} Proj" styleClass="headerText"/>
+								<h:outputText value="Charges" styleClass="headerText"/>
+							</h:panelGrid>							
+						</p:column>
+						<p:column>
+							<h:panelGrid columns="1" style="text-align: center" styleClass="current-year-right">
+								<h:outputText value="#{budgetMetadata.currentBudgetYearLabel} Proj" styleClass="headerText"/>
+								<h:outputText value="Pmt/tRVU" styleClass="headerText"/>
+							</h:panelGrid>						
+						</p:column>
+						<p:column>
+							<h:panelGrid columns="1" style="text-align: center" styleClass="current-year-right">
+								<h:outputText value="#{budgetMetadata.currentBudgetYearLabel} Proj" styleClass="headerText"/>
+								<h:outputText value="INC/DEC" styleClass="headerText"/>
+							</h:panelGrid>						
+						</p:column>
+						<p:column>
+							<h:panelGrid columns="1" style="text-align: center" styleClass="revenue-worksheet-cell">
+								<h:outputText value="#{budgetMetadata.priorBudgetYearLabel} Actual" styleClass="headerText"/>
+								<h:outputText value="Charges" styleClass="headerText"/>
+							</h:panelGrid>									
+						</p:column>
+						<p:column>
+							<h:panelGrid columns="1" style="text-align: center" styleClass="revenue-worksheet-cell">
+								<h:outputText value="#{budgetMetadata.priorBudgetYearLabel} Actual" styleClass="headerText"/>
+								<h:outputText value="Pmt/tRVU" styleClass="headerText"/>
+							</h:panelGrid>						
+						</p:column>
+						<p:column>
+							<h:panelGrid columns="1" style="text-align: center" styleClass="revenue-worksheet-cell">
+								<h:outputText value="#{budgetMetadata.priorBudgetYearLabel} wRVU" styleClass="headerText"/>
+								<h:outputText value="Split %" styleClass="headerText"/>
+							</h:panelGrid>							
+						</p:column>
+					</p:row>
+					
+					<!--  CAP ROW -->
+					<p:row>
+						<p:column>
+							<h:outputText value="CAP" style="float: left"/>				
+						</p:column>
+						<p:column>
+							<h:outputText styleClass="projectedValues" id="projCapCharges" value="#{paymentInformationView.paymentInformation.projCapCharges}">
+								<f:convertNumber type="currency" currencySymbol=""/>
+							</h:outputText>								
+						</p:column>
+						<p:column>
+							<h:outputText value="#{paymentInformationView.paymentInformation.projCapCollectionsToTrvus}" />							
+						</p:column>
+						<p:column>
+							<p:inputText
+								disabled="#{divisionInfoBean.divisionInfo.isPsychiatry and medGrpRevenueWorksheetController.sos eq 'BOTH'}" 
+								styleClass="highlight" value="#{paymentInformationView.paymentInformation.projCapCollectionsToTrvusPercentChange}" 
+								maxlength="6" style="width:80px; text-align:right" 
+								onkeypress="if (event.keyCode == 13) {event.preventDefault(); blur(); return false; }">
+								<f:convertNumber type="number" minFractionDigits="2" maxFractionDigits="2"/>
+								<p:ajax event="change" listener="#{medGrpRevenueWorksheetController.editCollectionRatePercOnBlur}" update=":container, paymentInformationGrid, :saveStatus"/>							
+							</p:inputText>							
+						</p:column>
+						<p:column>
+							<h:outputText value="#{paymentInformationView.paymentInformation.totalPriorYearCapCharges}">
+								<f:convertNumber type="currency" currencySymbol=""/>
+							</h:outputText>												
+						</p:column>
+						<p:column>
+							<h:outputText value="#{paymentInformationView.paymentInformation.priorYearCapCollectionsToTrvus}" />				
+						</p:column>
+						<p:column>
+							<h:outputText value="#{paymentInformationView.paymentInformation.capSplitPercentage}" />				
+						</p:column>																																								
+					</p:row>
+					
+					<!-- UNDERCOMP -->
+					<p:row>
+						<p:column>
+							<h:outputText value="UnderComp" style="float: left"/>
+						</p:column>
+						<p:column>
+							<h:outputText styleClass="projectedValues" id="projUnderCharges" value="#{paymentInformationView.paymentInformation.projUnderCharges}">
+								<f:convertNumber type="currency" currencySymbol=""/>
+							</h:outputText>						
+						</p:column>
+						<p:column>
+							<h:outputText value="#{paymentInformationView.paymentInformation.projUnderCollectionsToTrvus}" />
+						</p:column>
+						<p:column>
+							<p:inputText
+								disabled="#{divisionInfoBean.divisionInfo.isPsychiatry and medGrpRevenueWorksheetController.sos eq 'BOTH'}" 
+								styleClass="highlight"
+								value="#{paymentInformationView.paymentInformation.projUnderCollectionsToTrvusPercentChange}" 
+								maxlength="6" style="width:80px; text-align:right" 
+								onkeypress="if (event.keyCode == 13) {event.preventDefault(); blur(); return false; }">
+								<f:convertNumber type="number" minFractionDigits="2" maxFractionDigits="2"/>
+								<p:ajax event="change" listener="#{medGrpRevenueWorksheetController.editCollectionRatePercOnBlur}" update=":container, paymentInformationGrid, :saveStatus"/>							
+							</p:inputText>						
+						</p:column>
+						<p:column>
+							<h:outputText value="#{paymentInformationView.paymentInformation.totalPriorYearUnderCharges}" >
+								<f:convertNumber type="currency" currencySymbol=""/>
+							</h:outputText>							
+						</p:column>
+						<p:column>
+							<h:outputText value="#{paymentInformationView.paymentInformation.priorYearUnderCollectionsToTrvus}" />
+						</p:column>
+						<p:column>
+							<h:outputText value="#{paymentInformationView.paymentInformation.underSplitPercentage}" />
+						</p:column>																																									
+					</p:row>
+					
+					<!-- FFS -->
+					<p:row>
+						<p:column>
+							<h:outputText value="FFS" style="float: left"/>
+						</p:column>
+						<p:column>
+							<h:outputText styleClass="projectedValues" id="projFfsCharges" value="#{paymentInformationView.paymentInformation.projFfsCharges}">
+								<f:convertNumber type="currency" currencySymbol=""/>
+							</h:outputText>							
+						</p:column>
+						<p:column>
+							<h:outputText value="#{paymentInformationView.paymentInformation.projFfsCollectionsToTrvus}" />
+						</p:column>
+						<p:column>
+							<p:inputText
+								disabled="#{divisionInfoBean.divisionInfo.isPsychiatry and medGrpRevenueWorksheetController.sos eq 'BOTH'}" 
+								value="#{paymentInformationView.paymentInformation.projFfsCollectionsToTrvusPercentChange}"
+								styleClass="highlight" 
+								maxlength="6" style="width:80px; text-align:right"
+								onkeypress="if (event.keyCode == 13) {event.preventDefault(); blur(); return false; }">
+								<f:convertNumber type="number" minFractionDigits="2" maxFractionDigits="2"/>
+								<p:ajax event="change" listener="#{medGrpRevenueWorksheetController.editCollectionRatePercOnBlur}" update=":container, paymentInformationGrid, :saveStatus"/>							
+							</p:inputText>						
+						</p:column>
+						<p:column>
+							<h:outputText value="#{paymentInformationView.paymentInformation.totalPriorYearFfsCharges}">
+								<f:convertNumber type="currency" currencySymbol=""/>
+							</h:outputText>							
+						</p:column>
+						<p:column>
+							<h:outputText value="#{paymentInformationView.paymentInformation.priorYearFfsCollectionsToTrvus}" />						
+						</p:column>
+						<p:column>
+							<h:outputText value="#{paymentInformationView.paymentInformation.ffsSplitPercentage}" />
+						</p:column>																																									
+					</p:row>
+					
+					<!--  TOTALS -->
+					<p:row>
+						<p:column>
+							<h:outputText value="TOTALS/BLENDED RATES" styleClass="headerText" />
+						</p:column>
+						<p:column>
+							<h:outputText 
+								value="#{paymentInformationView.paymentInformation.totalProjCharges}" 
+								styleClass="headerText projectedValues"
+								id="totalProjCharges" 
+								style="color: black">
+								<f:convertNumber type="currency" currencySymbol=""/>
+							</h:outputText>								
+						</p:column>
+						<p:column>
+							<h:outputText
+								styleClass="headerText projectedValues"
+								id="projBlendedRate"
+								value="#{paymentInformationView.paymentInformation.projBlendedRate}" style="color: black"/>						
+						</p:column>
+						<p:column>
+							<br/>
+						</p:column>
+						<p:column>
+							<h:outputText value="#{paymentInformationView.paymentInformation.totalPriorCharges}" styleClass="headerText" >
+								<f:convertNumber type="currency" currencySymbol=""/>
+							</h:outputText>								
+						</p:column>
+						<p:column>
+							<h:outputText value="#{paymentInformationView.paymentInformation.priorBlendedRate}" styleClass="headerText" />	
+						</p:column>
+						<p:column>
+							<br/>
+						</p:column>																																			
+					</p:row>
+				</p:panelGrid>			
+			</p:row>			
+		</p:panelGrid>
+		
+	</h:form>
+	
+	<h:form id="inpatientForm">
+		<p:panelGrid columns="3" columnClasses=",current-year-right,revenue-worksheet-cell">
+			<h:outputText value="" />
+			<h:outputText value="#{budgetMetadata.currentBudgetYearLabel} Proj" styleClass="headerText"/>
+			<h:outputText value="#{budgetMetadata.priorBudgetYearLabel} Actual" styleClass="headerText"/>
+			
+			<h:outputText value="INPATIENT %" styleClass="headerText"/>
+			<p:inputText value="#{paymentInformationView.inpatientPercentage.projInpatientPercentage}" 
+				styleClass="#{(divisionInfoBean.divisionInfo.isPsychiatry)? 'projectedValues' : 'highlight'}" disabled="#{divisionInfoBean.divisionInfo.isPsychiatry}"
+				maxlength="6" style="width:80px; text-align:right"
+				onkeypress="if (event.keyCode == 13) {event.preventDefault(); blur(); return false; }">
+				<f:convertNumber type="number" minFractionDigits="4" maxFractionDigits="4"/>
+				<p:ajax event="change" listener="#{paymentInformationView.projInpatientPercCellOnBlur}" update=":saveStatus"/>							
+			</p:inputText>
+			<h:outputText value="#{paymentInformationView.inpatientPercentage.priorInpatientPercentage}" id="priorInpatientPercentage"/>
+				
+		</p:panelGrid>		
+
+		<!-- TOOLTIPS -->
+		<p:tooltip for="priorInpatientPercentage" trackMouse="true" >
+			<h:outputText 
+				value="#{bigDecimalUtil.toRVUString(paymentInformationView.inpatientPercentage.totalInpatientTrvus)} / #{bigDecimalUtil.toRVUString(paymentInformationView.inpatientPercentage.totalDivisionTrvus)}" />	
+		</p:tooltip>		
+	</h:form>
+	
+	<h:form id="capDistributionForm">
+	
+		<p:panelGrid columns="2" columnClasses=",current-year-right" style="text-align: center">
+		
+			<h:outputText value="" />
+			<h:outputText value="#{budgetMetadata.currentBudgetYearLabel} Proj" styleClass="headerText"/>
+		
+			<h:outputText value="CAP DISTRIBUTION" styleClass="headerText" id="capDistributionLbl" />
+			
+			<p:inputText value="#{paymentInformationView.capDistribution.amount}" styleClass="highlight"
+				maxlength="16" style="width:160px; text-align:right"
+				onkeypress="if (event.keyCode == 13) {event.preventDefault(); blur(); return false; }">
+				<f:convertNumber maxFractionDigits="2" minFractionDigits="0" type="number" />
+				<p:ajax event="change" listener="#{paymentInformationView.capDistributionCellOnBlur}" update=":container, :saveStatus"/>							
+			</p:inputText>				
+		</p:panelGrid>
+		
+		<!-- TOOLTIPS -->
+		<p:tooltip for="capDistributionLbl" trackMouse="true" >
+			<h:outputText 
+				value="Enter CAP distribution here as a dollar value.  TOTAL EXPECTED REVENUE = TOTAL CHARGES - ADJUSTMENTS + CAP DISTRIBUTION" />	
+		</p:tooltip>				
+	</h:form>
+	
+</ui:composition>

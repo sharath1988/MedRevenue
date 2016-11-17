@@ -1,0 +1,100 @@
+From:	Kaino, Cheryl
+Sent:	Monday, March 21, 2016 7:26 PM
+To:	Yebba, Michael; Strout, Glenn; Roesler, Paul
+Subject:	RE: Production Database Modification Request {vchs-staffing}
+
+Approved
+
+From: Yebba, Michael  
+Sent: Monday, March 21, 2016 7:26 PM 
+To: Kaino, Cheryl; Strout, Glenn; Roesler, Paul 
+Subject: Production Database Modification Request {vchs-staffing}
+
+Request for Production Database Modification
+ 
+Date of Request:  3/21/2016
+ 
+Requested date/time of the release: 
+As soon as reasonable pending approval from Cheryl. 
+ 
+What database needs to be modified? vchs-staffing in Production SQL Server
+ 
+Reason(s) for the change ? We need to update the effective rates for bargaining units based on 
+FY 17 received to us by HR via Rose.
+ 
+Does this affect a TableSync job?
+No
+ 
+Before the release should the entire database be backed up  ? No
+ 
+ 
+Before the release should specific database tables be backed up ? No
+ 
+ 
+List the step-by-step release process. 
+
+USE [vchs-staffing]
+GO
+UPDATE ACAD_STAFFING_BARG_UNIT_EFF_RATE SET rate_increase = .03 WHERE code = 'EX'
+GO
+UPDATE ACAD_STAFFING_BARG_UNIT_EFF_RATE SET rate_increase = .00 WHERE code = 'CX'
+GO
+UPDATE ACAD_STAFFING_BARG_UNIT_EFF_RATE SET rate_increase = .02 WHERE code = 'NX'
+GO
+UPDATE ACAD_STAFFING_BARG_UNIT_EFF_RATE SET rate_increase = .02 WHERE code = 'SX'
+GO
+UPDATE ACAD_STAFFING_BARG_UNIT_EFF_RATE SET rate_increase = .02 WHERE code = 'TX'
+GO
+UPDATE ACAD_STAFFING_BARG_UNIT_EFF_RATE SET rate_increase = .01 WHERE code = 'HX'
+GO
+
+ 
+Is this part of an application update/release ? No
+ 
+What testing was done to ensure the success of this release? 
+Functional testing was performed in the QA Environment. 
+
+ 
+Describe how to determine the success of the release: 
+Compare the results of the following query:
+USE [vchs-staffing]
+GO
+SELECT * FROM ACAD_STAFFING_BARG_UNIT_EFF_RATE
+GO
+
+to the data table we received from Rose (NOTE: There are additional Bargaining Unit codes in our table 
+that are not in Rose’s table.  This is OK.  Only compare the ones in this list):
+
+ 
+FY17 wage increase
+Bargaining Unit
+Calculated 
+rates
+EX
+3%
+CX
+0%
+NX
+2%
+SX
+2%
+TX
+2%
+HX
+1%
+ 
+
+
+Provide SVN location where this document should be saved. 
+svn+ssh://som-util01.ucsd.edu/opt/svnroot/medgrp-revenue/trunk/documentation
+Should any databases or tables be removed as a result of these changes?  No
+ 
+ 
+Thanks,
+ 
+Michael Yebba / Programmer Analyst
+ 
+Office of the Vice Chancellor, Health Sciences / UC San Diego 
+Business Application Development Group 
+Phone: 619-543-2657 | myebba@ucsd.edu | Tell us how we are doing.
+ 

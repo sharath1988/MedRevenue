@@ -1,0 +1,114 @@
+From:	O'Donnell, Edward
+Sent:	Wednesday, March 09, 2016 12:15 PM
+To:	Strout, Glenn; Kaino, Cheryl
+Cc:	Roesler, Paul; Yebba, Michael; somdev1@ucsd.edu
+Subject:	RE: Production Database Modification dw
+
+I forgot to specify the database where this was to be recreated. It is in the dw database, not the budget 
+database. I have updated the instructions below.
+
+From: Strout, Glenn  
+Sent: Tuesday, March 08, 2016 1:26 PM 
+To: Kaino, Cheryl; O'Donnell, Edward 
+Cc: Roesler, Paul; Yebba, Michael; somdev1@ucsd.edu 
+Subject: RE: Production Database Modification dw
+
+This is done and the validation confirmed. 
+
+Glenn
+
+From: Kaino, Cheryl  
+Sent: Tuesday, March 08, 2016 1:21 PM 
+To: O'Donnell, Edward <eodonnell@mail.ucsd.edu> 
+Cc: Roesler, Paul <proesler@ucsd.edu>; Strout, Glenn <gstrout@mail.ucsd.edu>; Yebba, Michael 
+<myebba@ucsd.edu>; somdev1@ucsd.edu 
+Subject: Re: Production Database Modification dw
+
+Approved
+ 
+On Mar 8, 2016, at 1:13 PM, O'Donnell, Edward <eodonnell@mail.ucsd.edu> wrote:
+Date of Request:
+3/8/2016
+ 
+Requested date/time of the release:
+As soon as reasonable
+ 
+What database needs to be modified?
+dw
+ 
+Reason(s) for the change ? the view: dw.all_employee_view is querying on a view which should be 
+switched to a table. This will speed up queries in the landing page app and anywhere else this view is 
+used.
+ 
+Does this affect a TableSync job?
+No.
+ 
+Before the release should the entire database be backed up  ?
+No
+ 
+Before the release should specific database tables be backed up ?
+No
+ 
+List the step-by-step release process.
+
+/* these instructions are updated as of 9 march 12pm */
+
+On each of the mysql servers run these two commands:
+ 
+drop view if exists dw.all_employee_view
+/ 
+drop view if exists budget.all_employee_view
+/
+CREATE
+                ALGORITHM=UNDEFINED DEFINER=`badg_definer`@`localhost` SQL SECURITY DEFINER 
+                VIEW `dw`.`all_employee_view` AS 
+SELECT
+                `ae`.`all_employee_id`                                                                           
+                AS `all_employee_id`,
+                rtrim(COALESCE(`e`.`employee_fullname`,`elf`.`EMB_EMPLOYEE_NAME`,`fe`.`name`
+                ))                    AS `employee_fullname`,
+                COALESCE(`e`.`home_department_code`,`elf`.`EMP_HOME_DEPARTMENT_CODE`,`fe`.
+                `home_department_code`) AS `home_department_code`,
+                COALESCE(`ae`.`employee_ucsd_id`,(`fe`.`tbn_id` + 
+987600000))                                                              
+                AS `employee_reference_id`,
+                `ae`.`employee_ucsd_id`                                                                           
+                AS `employee_ucsd_id`,
+                `elf`.`EMP_EMPLOYMENT_STATUS_CODE`                                                                
+                AS `status`,
+                if(isnull(`ae`.`employee_ucsd_id`),'Y','N')                                                       
+                AS `is_tbn` 
+FROM
+                (((`dw`.`all_employee` `ae` 
+                LEFT JOIN `dw`.`db2_p_employee` `elf` 
+                ON((`elf`.`EMB_EMPLOYEE_NUMBER` = `ae`.`employee_ucsd_id`))) 
+                LEFT JOIN `hris`.`employee` `e` 
+                ON((`e`.`employee_ucsd_id` = `ae`.`employee_ucsd_id`))) 
+                LEFT JOIN `dw`.`future_employee` `fe` 
+                ON((`fe`.`tbn_id` = `ae`.`tbn_id`))) 
+ORDER BY
+                `ae`.`all_employee_id`
+ 
+ 
+ 
+Is this part of an application update/release ?
+No
+ 
+What testing was done to ensure the success of this release?
+Table values confirmed on dev, qa and prod. The rows and columns returned from this modified view 
+are exactly the same as the original view. It is just faster. 
+ 
+ 
+Describe how to determine the success of the release:
+Run this command:
+explain select *
+from dw.all_employee_view
+ 
+you should get 4 rows back. Try the command on a server where you did not replace the view and you 
+get this:
+and you get 6 rows back and you can see this view is inferior in terms of performance.
+ 
+Provide SVN location where this document should be saved.
+/svnroot/medgrp-revenue/trunks/documentation
+ 
+ 

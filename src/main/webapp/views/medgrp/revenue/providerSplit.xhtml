@@ -1,0 +1,115 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:p="http://primefaces.org/ui">
+		
+	<h:form>
+	
+		<h2>Revenue Provider wRVUs Split % by Category for #{budgetMetadata.priorBudgetYearLabel}</h2>
+		<h:panelGroup rendered="#{empty revenueProviderSplitView.revenueProviderSplits}">
+			<em>No divisions to display.</em>
+		</h:panelGroup>	
+		
+		<p:dataTable value="#{revenueProviderSplitView.revenueProviderSplits}" var="split" widgetVar="provSplitTable" 
+			styleClass="provider-split-table" sortMode="multiple" id="splitTable"
+			paginator="true" paginatorPosition="bottom" paginatorAlwaysVisible="false" rows="15"
+			filteredValue="#{revenueProviderSplitView.filteredRevenueProviderSplits}">
+		
+			<p:column headerText="Provider" sortBy="#{split.providerName}" filterBy="#{split.providerName}" width="275"
+				styleClass="split-provider-col">
+	            <f:facet name="filter">
+	                <p:autoComplete completeMethod="#{revenueProviderSplitView.completeProviderName}" onkeyup="PF('provSplitTable').filter()" size="20" maxlength="20"/>
+	            </f:facet>				
+				<h:outputText value="#{split.providerName}" id="providerLbl"/>		
+				<p:tooltip for="providerLbl">
+					<p:panelGrid columns="1">
+						<f:facet name="header">
+							<h:outputText value="EIN" />
+						</f:facet>
+						<h:outputText value="#{split.employeeUcsdId}" />
+					</p:panelGrid>
+				</p:tooltip>
+			</p:column>
+			
+			<p:column headerText="EIN" sortBy="#{split.employeeUcsdId}" styleClass="split-provider-col">
+				<h:outputText value="#{split.employeeUcsdId}"/>
+			</p:column>
+			
+			<p:column headerText="SOS" sortBy="#{split.sos}" rendered="#{divisionInfoBean.divisionInfo.isPsychiatry}">
+				<h:outputText value="#{split.sos}" />
+			</p:column>
+					
+			<p:column headerText="CAP" sortBy="#{split.capWrvusPercent}">
+				<h:outputText value="#{split.capWrvusPercent}" id="capPercentLbl">
+					<f:convertNumber currencySymbol="" maxFractionDigits="4" minFractionDigits="4"/>
+				</h:outputText>
+				<p:tooltip for="capPercentLbl" trackMouse="true" >
+					<h:outputText value="#{bigDecimalUtil.toRVUString(split.totalCapWrvus)} / #{bigDecimalUtil.toRVUString(split.totalProviderWrvus)}" />
+				</p:tooltip>
+			</p:column>
+			
+			<p:column headerText="UnderComp" sortBy="#{split.underWrvusPercent}">
+				<h:outputText value="#{split.underWrvusPercent}" id="underPercentLbl">
+					<f:convertNumber currencySymbol="" maxFractionDigits="4" minFractionDigits="4"/>
+				</h:outputText>
+				<p:tooltip for="underPercentLbl" trackMouse="true">
+					<h:outputText value="#{bigDecimalUtil.toRVUString(split.totalUnderWrvus)} / #{bigDecimalUtil.toRVUString(split.totalProviderWrvus)}" />
+				</p:tooltip>							
+			</p:column>						
+			
+			<p:column headerText="FFS" sortBy="#{split.ffsWrvusPercent}">
+				<h:outputText value="#{split.ffsWrvusPercent}" id="ffsPercentLbl">
+					<f:convertNumber currencySymbol="" maxFractionDigits="4" minFractionDigits="4"/>
+				</h:outputText>
+				<p:tooltip for="ffsPercentLbl" trackMouse="true" >
+					<h:outputText value="#{bigDecimalUtil.toRVUString(split.totalFfsWrvus)} / #{bigDecimalUtil.toRVUString(split.totalProviderWrvus)}" />
+				</p:tooltip>	
+			</p:column>
+		</p:dataTable>
+		
+		<!--  DATA EXPORT LINKS -->
+		<p:panelGrid columns="2" border="1">
+			<h:commandLink>
+				<p:graphicImage library="theme" name="img/excel.png" />
+				<p:dataExporter type="xls" target="splitTable" fileName="revenueSplitPercentages_dept-#{divisionInfoBean.divisionInfo.departmentId}_div-#{divisionInfoBean.divisionInfo.divisionId}" 
+					pageOnly="false" />
+			</h:commandLink>
+		</p:panelGrid>		
+	</h:form>			
+	
+	<p:panelGrid columns="1" style="width: 50%">
+		<h:outputText value="DIVISION wRVU SPLIT PERCENTAGE" style="font-weight: bold"/>
+		<p:panelGrid columns="2" columnClasses=",revenue-worksheet-cell" >
+			<h:outputText value="CAP" />
+			<h:outputText value="#{revenueProviderSplitView.revenueDivisionSplit.capSplitPercentage}" id="totalCapPercentLbl">
+				<f:convertNumber currencySymbol="" maxFractionDigits="4" minFractionDigits="4"/>
+			</h:outputText>
+			
+			<h:outputText value="UnderComp" />
+			<h:outputText value="#{revenueProviderSplitView.revenueDivisionSplit.underSplitPercentage}" id="totalUnderPercentLbl">
+				<f:convertNumber currencySymbol="" maxFractionDigits="4" minFractionDigits="4"/>
+			</h:outputText>
+			
+			<h:outputText value="FFS" />
+			<h:outputText value="#{revenueProviderSplitView.revenueDivisionSplit.ffsSplitPercentage}" id="totalFfsPercentLbl">
+				<f:convertNumber currencySymbol="" maxFractionDigits="4" minFractionDigits="4"/>
+			</h:outputText>
+			
+		</p:panelGrid>
+	
+	</p:panelGrid>
+	
+	<p:tooltip for="totalCapPercentLbl" trackMouse="true" >
+		<h:outputText value="#{bigDecimalUtil.toRVUString(revenueProviderSplitView.revenueDivisionSplit.totalCapWrvus)} / #{bigDecimalUtil.toRVUString(revenueProviderSplitView.revenueDivisionSplit.totalWrvusAmt)}" />	
+	</p:tooltip>
+	
+	<p:tooltip for="totalUnderPercentLbl" trackMouse="true" >
+		<h:outputText value="#{bigDecimalUtil.toRVUString(revenueProviderSplitView.revenueDivisionSplit.totalUnderWrvus)} / #{bigDecimalUtil.toRVUString(revenueProviderSplitView.revenueDivisionSplit.totalWrvusAmt)}" />	
+	</p:tooltip>
+	
+	<p:tooltip for="totalFfsPercentLbl" trackMouse="true" >
+		<h:outputText value="#{bigDecimalUtil.toRVUString(revenueProviderSplitView.revenueDivisionSplit.totalFfsWrvus)} / #{bigDecimalUtil.toRVUString(revenueProviderSplitView.revenueDivisionSplit.totalWrvusAmt)}" />	
+	</p:tooltip>				
+	
+</ui:composition>

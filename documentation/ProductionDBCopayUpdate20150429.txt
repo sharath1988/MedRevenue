@@ -1,0 +1,80 @@
+From:	Kaino, Cheryl
+Sent:	Tuesday, April 28, 2015 3:08 PM
+To:	somdev5, account
+Cc:	Strout, Glenn; Roesler, Paul; Majors, Lin; somdev9
+Subject:	Re: Production Database Modification Request {budget}
+
+Follow Up Flag:	Follow up
+Flag Status:	Flagged
+
+Approved
+ 
+On Apr 28, 2015, at 3:00 PM, somdev5, account <somdev5@ucsd.edu> wrote:
+Request for Production Database Modification
+ 
+Date of Request: 4/28/2015
+ 
+Requested date/time of the release: 
+Close of business on Tuesday 4/28/2015 or first thing in the morning of Wednesday 4/29/2015. 
+ 
+What database needs to be modified? budget
+ 
+Reason(s) for the change ? The reason for this change is to set projected copay amounts to zero 
+where projected copay amounts match prior year copay amounts.  This is due to incorrect prior 
+year copay amounts being set as projected copay for FY2016 when revenue data was first 
+loaded.  It appears this is due to an issue in EPIC.
+ 
+Does this affect a TableSync job? 
+No 
+ 
+ 
+Before the release should the entire database be backed up  ? No
+ 
+Before the release should specific database tables be backed up ?  Yes, 
+budget.medgrp_revenue_payment_information
+ 
+ 
+List the step-by-step release process. 
+Execute the following SQL in SomProd4: 
+ 
+update budget.medgrp_revenue_payment_information p
+join 
+    ( select division_id, prior_copay, sos from budget.v_medgrp_revenue_payment_information
+       union all
+       select division_id, prior_copay, sos from budget.v_medgrp_revenue_payment_information_psych
+       ) v
+on v.division_id = p.division_id and v.sos = p.sos
+set p.proj_copay = 0
+where p.proj_copay = v.prior_copay
+/
+ 
+Verify 63 results were updated.
+ 
+Is this part of an application update/release ? No
+ 
+What testing was done to ensure the success of this release? 
+I tested this in both the development and QA environment and verified divisions that have set 
+projected copays did not get overwritten.
+ 
+Describe how to determine the success of the release: 
+1.	Log into the medgrp revenue application with the budget_admin role (http://som-
+prod4.ucsd.edu/medgrp-revenue)
+2.	From the division list, select Orthopedic Surgery
+3.	Scroll down to the “Payment Information” section on the worksheet and verify projected 
+copay amount is $167,700
+4.	No go back to the Revenue Homepage and select “Cardiology” from the division list
+5.	Scroll down to the “Payment Information” section on the worksheet and verify projected 
+copay amount is $0.00
+Provide SVN location where this document should be saved. 
+/svnroot/medgrp-revenue/trunk/documentation 
+ 
+Should any databases or tables be removed as a result of these changes? No
+ 
+Thanks,
+ 
+Michael Yebba / Programmer Analyst
+ 
+Office of the Vice Chancellor, Health Sciences / UC San Diego 
+Business Application Development Group 
+Phone: 619-543-2657 | somdev5@ucsd.edu | Tell us how we are doing.
+ 

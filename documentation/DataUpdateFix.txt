@@ -1,0 +1,72 @@
+From:	Kaino, Cheryl
+Sent:	Monday, March 07, 2016 1:06 PM
+To:	Yebba, Michael; Strout, Glenn
+Cc:	O'Donnell, Edward; Roesler, Paul
+Subject:	RE: Production Database Modification budget providerLookupInfo 
+
+approved
+
+From: Yebba, Michael  
+Sent: Monday, March 07, 2016 1:05 PM 
+To: Strout, Glenn; Kaino, Cheryl 
+Cc: O'Donnell, Edward; Roesler, Paul 
+Subject: RE: Production Database Modification budget providerLookupInfo 
+
+Date of Request:
+3/7/2016
+
+Requested date/time of the release:
+As soon as reasonable
+
+What database needs to be modified?
+budget
+
+Reason(s) for the change ?
+We need to load the latest Care Payment file as well as run the MedGrpRevenue table sync jobs to load 
+prior year data after Glenn made updates to providerLookupInfo. 
+
+Does this affect a TableSync job?
+Yes – we need to run 2 
+
+Before the release should the entire database be backed up  ?
+No
+
+Before the release should specific database tables be backed up ?
+See instructions below 
+
+List the step-by-step release process.
+
+STEP 1 - On Qa4 run: 
+mvtableqa4toprod4 budget stg_care_payment
+
+STEP 2 - Rerun TableSync jobs in the following order:
+1.	sudo /usr/local/TableSync/ts MedGrpRevLoad
+2.	sudo /usr/local/TableSync/ts MedGrpRev12Mos
+
+Is this part of an application update/release ?
+No
+
+What testing was done to ensure the success of this release?
+Table values confirmed on Qa4. 
+
+
+Describe how to determine the success of the release:
+
+1.	In Prod4, run 
+a.	Select count(*) from budget.stg_care_payment – Should return 42655 records
+2.	Log into the MedGrp Revenue application as budget_admin:  http://som-
+prod4.ucsd.edu/medgrp-revenue/
+3.	Click on Dermatology division - http://som-prod4.ucsd.edu/medgrp-
+revenue/views/medgrp/revenue/worksheet.html?divisionId=6
+4.	Verify worksheet is displayed without any orange providers
+5.	Click on Care Payment tab
+6.	Verify Care Payment tab is displayed with dollar values
+7.	Click on Owens division - http://som-prod4.ucsd.edu/medgrp-
+revenue/views/medgrp/revenue/worksheet.html?divisionId=75
+8.	Verify BIEDERMAN, OLIVER J. is displayed only once
+
+
+Provide SVN location where this document should be saved.
+/svnroot/medgrp-revenue/trunks/documentation
+
+

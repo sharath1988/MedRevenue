@@ -1,0 +1,74 @@
+From:	Kaino, Cheryl
+Sent:	Monday, May 16, 2016 4:52 PM
+To:	O'Donnell, Edward
+Cc:	Strout, Glenn; Yebba, Michael; Roesler, Paul
+Subject:	Re: Production Database Modification vchs-budget # 1
+
+Approved
+ 
+On May 16, 2016, at 4:14 PM, O'Donnell, Edward <eodonnell@mail.ucsd.edu> wrote:
+Date of Request:
+5/16/2016
+ 
+Requested date/time of the release:
+As soon as doable.
+ 
+What database needs to be modified?
+Vchs-budget
+ 
+Reason(s) for the change ? One view needs to be recreated
+Does this affect a TableSync job? No
+ 
+Before the release should the entire database be backed up  ? No.
+ 
+Before the release should specific database tables be backed up ? yes,  BudgetValue.
+List the step-by-step release process.
+Run this command on mysql on som.ucsd.edu
+ 
+CREATE OR REPLACE ALGORITHM=UNDEFINED DEFINER=`badg_definer`@`localhost` SQL SECURITY 
+DEFINER VIEW budget.V_RADIOLOGY_DIVISION_XREF_FOR_LP AS
+select distinct somDiv, 23 as mapToDiv from mgfs.mgBilling mg
+join som_portal.som_division sd on sd.division_id = mg.somDiv
+where sd.department_id = 306
+GO
+/
+ 
+ 
+Run these commands in this order in the vchs-budget DB:
+ 
+ 
+drop view [dbo].v_refresh_mgfs
+/
+ 
+CREATE VIEW [dbo].[v_refresh_mgfs] as
+select * from openquery(BADGMySQL, 'select 
+DIVISION_ID as divisionId,
+CAST(TOTAL_OTHER_ADJ as decimal(24,4)) as lineItem_8,
+CAST(TOTAL_PROJ_CHARGES as decimal(24,4)) as lineItem_16,
+CAST((TOTAL_CAP_ADJ  + TOTAL_CAP_DISTRIBUTION) as decimal(24,4)) as lineItem_17,
+CAST(TOTAL_BAD_DEBT_ADJ as decimal(24,4)) as lineItem_18
+from budget.V_TOTAL_BUDGET_ADJ_BY_DIV_FOR_LP
+order by DIVISION_ID 
+')
+GO
+/
+ 
+Is this part of an application update/release ?
+No.
+ 
+What testing was done to ensure the success of this release?
+Testing was done on dev and qa
+ 
+Describe how to determine the success of the release
+Run these query, it should  run fine.
+ 
+select * from [vchs-budget].dbo.v_refresh_mgfs
+ 
+now execute the stored proc:
+ 
+exec [vchs-budget].dbo.p_fetch_mgfs
+ 
+Provide SVN location where this document should be saved.
+/svnroot/medgrp-revenue/trunks/documentation
+ 
+ 

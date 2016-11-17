@@ -1,0 +1,30 @@
+<!DOCTYPE etl SYSTEM "http://scriptella.javaforge.com/dtd/etl.dtd">
+<etl>
+    <description>Copies cc_parameters and znb_parameters from mgStaging schema from SQL Server prod to target ENV</description>
+    <properties>
+		<!-- <include href="/etc/scriptella/connections.dev.properties"/> -->
+		<include href="/etc/scriptella/connections.qa.properties"/>
+		<!-- <include href="/etc/scriptella/connections.prod.properties"/> -->
+    </properties>
+    
+   		<connection id="msprod" driver="$msprod.driver" url="$msprod.url" user="$msprod.user" password="$msprod.password"/>
+       	<connection id="mysql" driver="$mysql.driver" url="$mysql.url" user="$mysql.user" password="$mysql.password"/>
+
+		<script connection-id="mysql">
+		truncate budget.znb_parameters_prior_fy;
+		</script>
+		
+		<!-- Copy Charges/Collections file for last fiscal year -->
+		<query connection-id="msprod">
+		
+			SELECT * FROM mgStaging.dbo.znb_parameters WHERE SERVICE_PERIOD BETWEEN '2015-01' AND '2015-12';
+			<script connection-id="mysql">
+				<!--  insert all cc records into budget.znb_parameters_prior_fy -->
+				INSERT INTO budget.znb_parameters_prior_fy (
+    SERVICE_PERIOD, FIN_DIV_NAME, FIN_SUBDIV_NAME, BILL_AREA_ID, BILL_AREA_NAME, POS_ID, POS_NAME, LOC_ID, LOC_NAME, GL_PREFIX, GL_INDEX, PL_CATEGORY, ORIG_PLAN_ID, ORIG_FSC, ADJUSTMENT_CATEGORY, CHARGE, PAYMENT, ADJUSTMENT, ORIG_CHARGE_POST_PERIOD
+) VALUES (
+    ?SERVICE_PERIOD, ?FIN_DIV_NAME, ?FIN_SUBDIV_NAME, ?BILL_AREA_ID, ?BILL_AREA_NAME, ?POS_ID, ?POS_NAME, ?LOC_ID, ?LOC_NAME, ?GL_PREFIX, ?GL_INDEX, ?PL_CATEGORY, ?ORIG_PLAN_ID, ?ORIG_FSC, ?ADJUSTMENT_CATEGORY, ?CHARGE, ?PAYMENT, ?ADJUSTMENT, ?ORIG_CHARGE_POST_PERIOD
+);
+			</script>
+		</query>
+</etl>

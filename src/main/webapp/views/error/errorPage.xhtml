@@ -1,0 +1,28 @@
+<ui:composition
+		xmlns="http://www.w3.org/1999/xhtml"
+		xmlns:ui="http://java.sun.com/jsf/facelets"
+		xmlns:f="http://java.sun.com/jsf/core"
+		xmlns:h="http://java.sun.com/jsf/html"
+		xmlns:p="http://primefaces.org/ui"
+		template="/layout/template.xhtml">
+
+	<ui:define name="body">
+		<div class="layoutContent">
+			<div class="body" style="vertical-align: center">
+				<h1>Error</h1>
+				<p>The application encountered an error:</p>
+				<p>If the network is experiencing heavy volume, it could be the application timed out waiting for page data to load.</p>
+				<p>In this case, close all open web browser windows, wait a few minutes, then try again.</p>
+				<p>If, after closing your web browser (i.e. Firefox or Internet Explorer), you can repeat the error, 
+					send an email message to the Business Application Development Group
+					at 
+					<a href="mailto:hs-support@ucsd.edu?subject=Error using MedGrp-Revenue&amp;Body=When using the medgrp-revenue application, I received an error marked &quot;#{requestScope['uuid']}&quot;.">
+						hs-support@ucsd.edu</a>.
+				</p>
+				<p>Please indicate the name or a description of the application you were using, the action you were trying to perform, and the error you received (including the string below will be very helpful).</p>
+				<p><strong><h:outputText value="#{requestScope['uuid']}"/></strong></p>
+				<p>Thank you.</p>
+			</div>
+		</div>
+	</ui:define>
+</ui:composition>

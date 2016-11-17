@@ -1,0 +1,41 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:p="http://primefaces.org/ui">
+	<h:outputScript library="theme" name="js/sessionTimeout.js" target="head" />
+	<script>
+		$.fn.sessionTimeout({
+			timeout: #{sessionTimeout.timeout},
+			warning: #{sessionTimeout.warning},
+			onWarning: function() {
+				if (PF('idleDialog').jq.find('#time-left').size() === 0) {
+					var timeLeftMessage = $('<div class="time-left-message">Click OK in the next ' +
+												'<span id="time-left"></span> second(s) ' +
+												'to prevent your session from timing out.</div>');
+					PF('idleDialog').jq.find('.ui-confirm-dialog-message').parent().append(timeLeftMessage);
+				}
+				PF('idleDialog').show();
+			},
+			onTimer: function(timeLeft) {
+				PF('idleDialog').jq.find('#time-left').text(timeLeft);
+			},
+			onTimeout: function() {
+				PF('idleDialog').hide();
+				PF('timedOutDialog').show();
+			}
+		});
+	</script>
+	<p:ajaxStatus oncomplete="$.fn.sessionTimeout.reset();"/>
+	<h:form>
+		<p:growl id="msg" showDetail="true" severity="info" sticky="true" for="confirmDialog"/>		
+		<p:confirmDialog id="confirmDialog" message="Your session is about to timeout due to inactivity." 
+				header="Inactivity Alert" severity="alert" widgetVar="idleDialog">
+			<p:commandButton id="confirm" value="OK" oncomplete="PF('idleDialog').hide()" update="msg" action="#{sessionTimeout.keepAlive()}" />
+			<p:commandButton id="Logout" value="Logout" oncomplete="PF('idleDialog').hide()" update="msg" action="#{sessionTimeout.logout()}" />
+		</p:confirmDialog>
+	</h:form>
+	<p:dialog header="Session Timed Out" widgetVar="timedOutDialog" modal="true" height="100" closable="false" draggable="false">
+    	<h:outputText value="Your session has timed out."/>
+	</p:dialog>
+</ui:composition>

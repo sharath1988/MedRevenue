@@ -1,0 +1,116 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:p="http://primefaces.org/ui">
+
+	<h:form>
+		
+		<p:menubar>
+		
+			<p:submenu label="Home" icon="ui-icon-home">
+				<p:menuitem value="VCHS Budget Module" url="#{menuBean.vchsBudgetModuleUrl}" icon="ui-icon-carat-1-e"/>
+			</p:submenu>
+			<p:submenu label="Revenue" icon="ui-icon-document">
+				<p:menuitem value="All Departments" rendered="#{menuBean.isBudgetAdmin}"
+					url="/views/medgrp/revenue/list.html" icon="ui-icon-carat-1-e" />
+				<p:menuitem value="My Department(s)" rendered="#{not menuBean.isBudgetAdmin}"
+					url="/views/medgrp/revenue/list.html" icon="ui-icon-carat-1-e" />					
+				<p:menuitem value="HSA Revenue"
+					url="#{menuBean.mgfsRootPath}revenue/hsa_revenue_list.html" icon="ui-icon-carat-1-e"/>
+				<p:menuitem value="HSA Revenue w/ Filter" style="width:100%"
+					url="#{menuBean.mgfsRootPath}revenue/hsa_revenue_list.html" icon="ui-icon-carat-1-e"/>					
+			</p:submenu>
+			
+			<p:submenu label="Expense" icon="ui-icon-document">
+				<p:menuitem value="All Departments" rendered="#{menuBean.isBudgetAdmin}"
+					url="#{menuBean.mgfsRootPath}expense/master_list.html?conversationPropagation=none" icon="ui-icon-carat-1-e" />
+				<p:menuitem value="My Department(s)" rendered="#{not menuBean.isBudgetAdmin}"
+					url="#{menuBean.mgfsRootPath}expense/master_list.html?conversationPropagation=none" icon="ui-icon-carat-1-e" />					
+				<p:menuitem value="All Departments w/ Filter" style="width:100%" rendered="#{menuBean.isBudgetAdmin}"
+					url="#{menuBean.mgfsRootPath}expense/master_list_w_filter.html?conversationPropagation=none" icon="ui-icon-carat-1-e"/>
+				<p:menuitem value="My Department(s) w/ Filter" style="width:100%" rendered="#{not menuBean.isBudgetAdmin}"
+					url="#{menuBean.mgfsRootPath}expense/master_list_w_filter.html?conversationPropagation=none" icon="ui-icon-carat-1-e"/>					
+			</p:submenu>			
+
+			<p:submenu label="Reports" icon="ui-icon-document">
+				<p:menuitem value="Budget Calendar"
+					url="#{menuBean.mgfsRootPath}calendar/list.html?conversationPropagation=none" icon="ui-icon-carat-1-e" />
+				<p:menuitem value="Index Rollups"
+					url="#{menuBean.mgfsRootPath}reports/individual_list.html?conversationPropagation=end" icon="ui-icon-carat-1-e"/>
+				<p:menuitem value="Index Rollups w/ Filter" style="width:100%"
+					url="#{menuBean.mgfsRootPath}reports/individual_list_w_filter.html?conversationPropagation=end" icon="ui-icon-carat-1-e"/>					
+			</p:submenu>
+			
+			<p:submenu label="Visits" icon="ui-icon-document">
+				<p:menuitem value="Visits"
+					url="#{menuBean.mgfsRootPath}visit/list.html?conversationPropagation=none" icon="ui-icon-carat-1-e" />
+				<p:menuitem value="Visits w/ Filter"
+					url="#{menuBean.mgfsRootPath}visit/list_w_filter.html?conversationPropagation=none" icon="ui-icon-carat-1-e"/>					
+			</p:submenu>
+			
+			<p:submenu label="Help" icon="ui-icon-help">
+				<p:menuitem value="Budget Application User Manual"
+					url="#{menuBean.budgetHelpUrl}" icon="ui-icon-extlink" />
+				<p:menuitem value="Billing Area Rates"
+					url="/views/medgrp/revenue/billingAreaRates.html" icon="ui-icon-extlink" />																
+			</p:submenu>
+			
+			<p:submenu label="Admin" icon="ui-icon-link" rendered="#{menuBean.isBudgetAdmin}">
+				<p:menuitem value="Manage Revenue Metadata"
+					url="/views/admin/budgetMetadata.html" icon="ui-icon-carat-1-e" />
+				<p:menuitem value="Manage LJMRI tRVU"
+					url="/views/admin/ljmriTrvu.html" icon="ui-icon-carat-1-e" />					
+				<p:menuitem value="Manage Revenue Users"
+					url="#{menuBean.mgfsRootPath}admin/emp_division.html?conversationPropagation=end" icon="ui-icon-carat-1-e" />
+				<p:menuitem value="Manage Expense/Visists Users"
+					url="#{menuBean.mgfsRootPath}admin/emp_index.html?conversationPropagation=end" icon="ui-icon-carat-1-e" />
+				<p:menuitem value="Replicate Expense User"
+					url="#{menuBean.mgfsRootPath}admin/emp_index_replicate.html?conversationPropagation=end" icon="ui-icon-carat-1-e" />
+				<p:menuitem value="Manage Account Rollup Table"
+					url="#{menuBean.mgfsRootPath}admin/account_list.html?conversationPropagation=end" icon="ui-icon-carat-1-e" />
+				<p:menuitem value="Manage IndexMap Table"
+					url="#{menuBean.mgfsRootPath}/admin/indexmap/multi_list.html?conversationPropagation=end" icon="ui-icon-carat-1-e" />
+				<p:menuitem value="Manage Rates"
+					url="#{menuBean.mgfsRootPath}/admin/rate_list.html?conversationPropagation=end" icon="ui-icon-carat-1-e" />
+				<p:menuitem value="Manual Reporting Corrections"
+					url="#{menuBean.mgfsRootPath}/admin/BudgetProjList.html?conversationPropagation=end" icon="ui-icon-carat-1-e" />
+				<p:submenu label="Manage Harvest" icon="ui-icon-link">
+					<p:menuitem value="Manage Outside Billed Divisions"
+						url="#{menuBean.mgfsRootPath}admin/manage_outside_billed.html?conversationPropagation=none" icon="ui-icon-carat-1-e" />
+					<p:menuitem value="Manage Abstr &amp; Auth Alloc"
+						url="#{menuBean.mgfsRootPath}admin/manage_allocations.html?conversationPropagation=none" icon="ui-icon-carat-1-e" />		
+					<p:menuitem value="Manage Div 91 Mappings"
+						url="#{menuBean.mgfsRootPath}admin/manage_division91.html?conversationPropagation=none" icon="ui-icon-carat-1-e" />		
+					<p:menuitem value="Import UCOP Tax Allocations"
+						url="#{menuBean.mgfsRootPath}admin/manage_ucop_tax_allocations.html?conversationPropagation=none" icon="ui-icon-carat-1-e" />																								
+				</p:submenu>																																							
+			</p:submenu>			
+																				
+
+			<p:menuitem style="position: absolute; right: 10px;" value="Login"
+				url="/views/loggedin.html" icon="ui-icon-extlink"
+				rendered="#{!badgIdentity.loggedIn}" />
+
+			<p:menuitem style="position: absolute; right: 10px;" value="Logout"
+				url="#{appInfo.logoutRedirect}"
+				icon="ui-icon-extlink" rendered="#{badgIdentity.loggedIn}" />
+			
+		</p:menubar>
+		
+<!--  			<p:submenu label="Submenu 2:1" icon="ui-icon-pencil">
+				<p:menuitem value="Menu Item 2:1:1" url="http://som.ucsd.edu"
+					icon="ui-icon-wrench" />
+				<p:menuitem value="Menu Item 2:1:2" url="http://som.ucsd.edu"
+					icon="ui-icon-check" />
+				<p:submenu label="Submenu 2:2" icon="ui-icon-pencil">
+					<p:menuitem value="Menu Item 2:2:1" url="http://som.ucsd.edu"
+						icon="ui-icon-wrench" />
+					<p:menuitem value="Menu Item 2:2:2" url="http://som.ucsd.edu"
+						icon="ui-icon-wrench" />
+				</p:submenu>
+			</p:submenu> 
+-->		
+	</h:form>
+
+</ui:composition>

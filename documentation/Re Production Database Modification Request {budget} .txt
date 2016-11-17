@@ -1,0 +1,223 @@
+From:	Strout, Glenn
+Sent:	Thursday, May 28, 2015 12:10 PM
+To:	somdev5, account; Kaino, Cheryl; Roesler, Paul; somdev9
+Subject:	RE: Production Database Modification Request {budget} 
+
+This is done.
+
+Glenn
+
+From: somdev5, account  
+Sent: Thursday, May 28, 2015 12:04 PM 
+To: Kaino, Cheryl; Strout, Glenn; Roesler, Paul; somdev9 
+Subject: RE: Production Database Modification Request {budget} 
+
+Sorry for the false alarm.  Here is the modified script:
+
+/**
+* VIEW v_medgrp_revenue_division
+* 
+ * Provides a unique list of medgrp divisions
+*/
+create or replace view budget.v_medgrp_revenue_division as
+select distinct division_id from budget.v_medgrp_revenue_worksheet
+union all
+select 1 from dual
+GO
+
+/*
+* V_EMPLOYEE_DIVISION
+* 
+ * View for displaying a list of MedGrp divisions on the landing screen.
+* Only displays divisions that have active indexes in the index map
+* with a group area = 'MedGrp'.  
+ * 
+ * IMPORTANT: Returns employeeUcsdId so we can list only the revenue
+* divisions they have access to
+* 
+ * NOTE: Doing a RIGHT OUTER JOIN on emp_divisions to pull in Anes records
+*/
+create or replace view budget.v_employee_division_base as
+select distinct 
+    concat('MedGrp', '-', cast(ei.employee_ucsd_id as char), '-', cast(ei.division_id 
+as char)) as id,
+    sr.department_id, COALESCE(im.deptRollup, sr.department_name) as department_name, 
+    sr.division_id, COALESCE(im.divRollup, sr.division_name) as division_name, 
+    ei.employee_ucsd_id,
+    'MedGrp' as group_area,
+    ifnull((select count(*) as provider_count from budget.medgrp_revenue_worksheet 
+where division_id=mg.division_id group by division_id),0) as provider_count
+from budget.v_medgrp_revenue_division mg
+join budget.emp_divisions ei on ei.division_id = mg.division_id
+join budget.v_som_division sr on sr.division_id = ei.division_id
+left outer join budget.index_map im on im.division_id = mg.division_id
+where sr.division_id <> 54 and sr.division_id <> -99
+union all
+select distinct 
+    concat('MedGrp', '-', cast(ba.employee_ucsd_id as char), '-', cast(sr.division_id 
+as char)) as id,
+    sr.department_id, COALESCE(im.deptRollup, sr.department_name) as department_name,
+    sr.division_id, COALESCE(im.divRollup, sr.division_name) as division_name, 
+    ba.employee_ucsd_id,
+    'MedGrp' as group_area,
+    ifnull((select count(*) as provider_count from budget.medgrp_revenue_worksheet 
+where division_id=mg.division_id group by division_id),0) as provider_count
+from budget.v_medgrp_revenue_division mg
+join budget.v_som_division sr on sr.division_id = mg.division_id
+left outer join budget.index_map im on im.division_id = mg.division_id
+cross join budget.v_budget_admin ba
+where sr.division_id <> 54 and sr.division_id <> -99
+order by department_name, division_name
+GO
+
+create or replace view budget.v_employee_division as
+select * from budget.v_employee_division_base q where (q.provider_count > 0 or 
+q.division_id = 1)
+GO
+
+Thanks,
+
+Michael Yebba / Programmer Analyst
+
+Office of the Vice Chancellor, Health Sciences / UC San Diego 
+Business Application Development Group 
+Phone: 619-543-2657 | somdev5@ucsd.edu | Tell us how we are doing.
+
+From: Kaino, Cheryl  
+Sent: Thursday, May 28, 2015 11:49 AM 
+To: somdev5, account; Strout, Glenn; Roesler, Paul; somdev9 
+Subject: RE: Production Database Modification Request {budget} 
+
+Approved
+
+From: somdev5, account  
+Sent: Thursday, May 28, 2015 11:43 AM 
+To: Strout, Glenn; Kaino, Cheryl; Roesler, Paul; somdev9 
+Subject: Production Database Modification Request {budget} 
+
+Request for Production Database Modification
+
+Date of Request:  5/28/2015
+
+Requested date/time of the release: 
+Please deploy as soon as reasonably possible.  This is an urgent release.
+
+What database needs to be modified? budget
+
+Reason(s) for the change ? Urology was not showing up on the medgrp revenue summary list 
+because I was joining against index map to display the department and division names.  Urology 
+is now division 32.  However, in mgfs, Urology is division 206 so this division was being 
+excluded.  Now I am conditionally joining against index_map and displaying labels from 
+som_rollup ONLY IF they don’t exist in the index map.
+
+Does this affect a TableSync job? 
+No.
+
+
+Before the release should the entire database be backed up  ? No
+
+Before the release should specific database tables be backed up ? No
+
+
+List the step-by-step release process. 
+
+Execute the following SQL in SomProd4 budget database:
+
+use budget
+GO
+
+/**
+* VIEW v_medgrp_revenue_division
+* 
+ * Provides a unique list of medgrp divisions
+*/
+create or replace view budget.v_medgrp_revenue_division as
+select distinct division_id from budget.v_medgrp_revenue_worksheet
+GO
+
+/*
+* V_EMPLOYEE_DIVISION
+* 
+ * View for displaying a list of MedGrp divisions on the landing screen.
+* Only displays divisions that have active indexes in the index map
+* with a group area = 'MedGrp'.  
+ * 
+ * IMPORTANT: Returns employeeUcsdId so we can list only the revenue
+* divisions they have access to
+* 
+ * NOTE: Doing a RIGHT OUTER JOIN on emp_divisions to pull in Anes records
+*/
+create or replace view budget.v_employee_division_base as
+select distinct 
+    concat('MedGrp', '-', cast(ei.employee_ucsd_id as char), '-', cast(ei.division_id as char)) 
+as id,
+    sr.department_id, COALESCE(im.deptRollup, sr.department_name) as department_name, 
+    sr.division_id, COALESCE(im.divRollup, sr.division_name) as division_name, 
+    ei.employee_ucsd_id,
+    'MedGrp' as group_area,
+    ifnull((select count(*) as provider_count from budget.medgrp_revenue_worksheet where 
+division_id=mg.division_id group by division_id),0) as provider_count
+from budget.v_medgrp_revenue_division mg
+right outer join budget.emp_divisions ei on ei.division_id = mg.division_id
+join budget.v_som_division sr on sr.division_id = ei.division_id
+left outer join budget.index_map im on im.division_id = mg.division_id
+where sr.division_id <> 54 and sr.division_id <> -99 and (mg.division_id is not null or 
+ei.division_id=1)
+union all
+select distinct 
+    concat('MedGrp', '-', cast(ba.employee_ucsd_id as char), '-', cast(sr.division_id as char)) 
+as id,
+    sr.department_id, COALESCE(im.deptRollup, sr.department_name) as department_name,
+    sr.division_id, COALESCE(im.divRollup, sr.division_name) as division_name, 
+    ba.employee_ucsd_id,
+    'MedGrp' as group_area,
+    ifnull((select count(*) as provider_count from budget.medgrp_revenue_worksheet where 
+division_id=mg.division_id group by division_id),0) as provider_count
+from budget.v_medgrp_revenue_division mg
+join budget.v_som_division sr on sr.division_id = mg.division_id
+left outer join budget.index_map im on im.division_id = mg.division_id
+cross join budget.v_budget_admin ba
+where sr.division_id <> 54 and sr.division_id <> -99 and (mg.division_id is not null or 
+mg.division_id=1)
+--and ba.employee_ucsd_id = 209166 and sr.division_id=206
+order by department_name, division_name
+GO
+
+create or replace view budget.v_employee_division as
+select * from budget.v_employee_division_base q where (q.provider_count > 0 or q.division_id = 1)
+GO
+
+
+Is this part of an application update/release ? No
+
+What testing was done to ensure the success of this release? 
+Tested the following use case in Qa4
+1.	Log into http://som-qa4.ucsd.edu/medgrp-revenue with the budget_admin role
+2.	In the “Div Id” field, type ‘206’
+3.	Verify Urology is returned in the results
+4.	Click on the Division Id Field for Urology and verify the revenue worksheet is displayed
+
+
+Describe how to determine the success of the release: 
+1.	Execute this query and verify that 9 records are returned:
+select * from v_employee_division where division_id=206
+/
+
+2.	Log into http://som-prod4.ucsd.edu/medgrp-revenue with the budget_admin role
+3.	In the “Div Id” field, type ‘206’
+4.	Verify Urology is returned in the results
+5.	Click on the Division Id Field for Urology and verify the revenue worksheet is displayed
+
+Provide SVN location where this document should be saved. 
+svn+ssh://som-util01.ucsd.edu/opt/svnroot/medgrp-revenue/trunk/documentation
+Should any databases or tables be removed as a result of these changes?
+No.
+
+Thanks,
+
+Michael Yebba / Programmer Analyst
+
+Office of the Vice Chancellor, Health Sciences / UC San Diego 
+Business Application Development Group 
+Phone: 619-543-2657 | somdev5@ucsd.edu | Tell us how we are doing.
+

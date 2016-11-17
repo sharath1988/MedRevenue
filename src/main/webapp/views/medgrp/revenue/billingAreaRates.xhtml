@@ -1,0 +1,72 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:p="http://primefaces.org/ui" template="/layout/template.xhtml">
+
+	<ui:define name="body">
+
+		<h2>Medical Group Revenue - Billing Area Rates for Your Divisions</h2>
+		<h:panelGroup rendered="#{empty billingAreaRatesView.billingAreaRates}">
+			<em>You do not have access to any MedGrp divisions.</em>
+		</h:panelGroup>
+		
+		<h:form>
+		<p:dataTable widgetVar="baRatesTable" var="varBa" filteredValue="#{billingAreaRatesView.filteredBillingAreaRates}" id="tbl"
+			value="#{billingAreaRatesView.billingAreaRates}"
+			rendered="#{not empty billingAreaRatesView.billingAreaRates}"
+			emptyMessage="There are no divisions that match your search criteria."
+			paginator="true" rows="20" paginatorPosition="bottom"
+			paginatorTemplate="{CurrentPageReport}  {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {Exporters}"
+			style="width: 100%;">
+			
+			<f:facet name="{Exporters}">
+			
+				<h:commandLink>
+	                <p:graphicImage library="theme" name="img/excel.png" width="24"/>
+	                <p:dataExporter type="xls" target="tbl" fileName="billingAreaRates" />					
+				</h:commandLink>
+	            <h:commandLink>
+	                <p:graphicImage library="theme" name="img/pdf.png" width="24"/>
+	                <p:dataExporter type="pdf" target="tbl" fileName="billingAreaRates"/>
+	            </h:commandLink>				
+			
+			</f:facet>
+						
+			<p:column headerText="Division Id" sortBy="#{varBa.somDivisionId}" style="width: 50px"
+				filterBy="#{varBa.somDivisionId}" filterMatchMode="contains" filterStyle="width: 50px" >
+				<h:outputText value="#{varBa.somDivisionId}" />
+			</p:column>
+			
+			<p:column headerText="Division Name" sortBy="#{varBa.somDivisionName}" style="width: 200px"
+				filterBy="#{varBa.somDivisionName}" filterMatchMode="contains" filterStyle="width: 100px" >
+				<f:facet name="header">Division<br/>Name</f:facet>
+				<h:outputText value="#{varBa.somDivisionName}" />
+			</p:column>
+			
+			<p:column headerText="Billing Area Id" sortBy="#{varBa.billingAreaId}" style="width: 50px"
+				filterBy="#{varBa.billingAreaId}" filterMatchMode="contains" filterStyle="width: 50px" >
+				<h:outputText value="#{varBa.billingAreaId}" />
+			</p:column>
+			
+			<p:column headerText="Billing Area Name" sortBy="#{varBa.billingAreaName}" style="width: 200px"
+				filterBy="#{varBa.billingAreaName}" filterMatchMode="contains" filterStyle="width: 100px" >
+				<f:facet name="header">Billing Area<br/>Name</f:facet>
+				<h:outputText value="#{varBa.billingAreaName}" />
+			</p:column>
+			
+			<p:column headerText="Billing Type" sortBy="#{varBa.billingType}" style="width: 60px"
+				filterBy="#{varBa.billingType}" filterMatchMode="contains" filterStyle="width: 55px" >
+				<h:outputText value="#{varBa.billingType}" />
+			</p:column>
+			
+			<p:column headerText="Rate" sortBy="#{varBa.rate}" style="width: 60px"
+				filterBy="#{varBa.rate}" filterMatchMode="contains" filterStyle="width: 50px" >
+				<f:facet name="header">Billing Area<br/>Rate</f:facet>
+				<h:outputText value="#{varBa.rate}" />
+			</p:column>															
+
+		</p:dataTable>
+		</h:form>
+	</ui:define>
+</ui:composition>

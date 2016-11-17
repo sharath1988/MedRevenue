@@ -1,0 +1,108 @@
+From:	O'Donnell, Edward
+Sent:	Wednesday, May 25, 2016 10:19 AM
+To:	Strout, Glenn; Yebba, Michael
+Cc:	Kaino, Cheryl
+Subject:	Production Database Modification vchs-budget_20160525_v1
+
+Date of Request:
+5/25/2016
+ 
+Requested date/time of the release:
+As soon as doable.
+ 
+What database needs to be modified?
+Vchs-budget 
+ 
+Reason(s) for the change ? Redo of stored proc. This will take care of the stale data issues.
+
+Does this affect a TableSync job? No
+ 
+Before the release should the entire database be backed up  ? No.
+ 
+Before the release should specific database tables be backed up ? No.
+
+
+List the step-by-step release process.
+
+
+Run these commands from top to bottom in the vchs-budget DB:
+
+drop procedure [dbo].[p_check_budget]
+/
+
+CREATE PROCEDURE [dbo].[p_check_budget] (
+    @DataTable BudgetValueTableType READONLY,
+    @LineItemId int,
+    @datagroupId int
+    )
+/* this proc checks to make sure values exist in the budget and budgetValue tables.
+    It also inserts the value into the budgetValue table
+*/
+AS
+
+BEGIN
+DECLARE @missionId int;
+
+    -- get missionId from @DataTable
+    SET @missionId = ( SELECT TOP 1 missionId FROM @DataTable );
+    -- set calculcatedValue to zero
+    UPDATE bv
+    SET bv.CalculatedValue = 0
+    FROM dbo.BudgetValue bv 
+    INNER JOIN budget b ON bv.BudgetId=b.BudgetId
+    WHERE bv.LineItemId = @LineItemId
+    AND bv.MissionId = @missionId
+    AND b.datagroupId = @datagroupId
+
+                -- insert into budgetValue if necessary
+                INSERT INTO
+                                [vchs-budget].dbo.BudgetValue (BudgetId, LineItemId, MissionId, CalculatedValue)
+                SELECT
+                                b.BudgetId, @LineItemId, tmp.missionId, tmp.input_amount
+                FROM
+                                [vchs-budget].dbo.Budget b,
+                                @DataTable tmp
+                WHERE
+                                b.DivisionId = tmp.divisionId AND b.datagroupId = tmp.datagroupId AND
+                                NOT EXISTS (SELECT 1 FROM BudgetValue WHERE BudgetId = b.BudgetId AND 
+LineItemId = @LineItemId AND MissionId = tmp.missionId and b.datagroupId = tmp.datagroupId);
+
+    /* now update BudgetValue with the appropriate values */
+                UPDATE
+                                bv
+                SET
+                                bv.CalculatedValue = tmp.input_amount
+    FROM [vchs-budget].dbo.BudgetValue bv
+                JOIN [vchs-budget].dbo.Budget b ON b.BudgetId = bv.BudgetId AND b.datagroupId = 
+@datagroupId
+                JOIN @DataTable tmp ON tmp.divisionId = b.DivisionId and tmp.datagroupId = @datagroupId
+                WHERE
+                                bv.MissionId = tmp.missionId 
+        AND bv.LineItemId = @LineItemId;
+
+
+END
+GO
+/
+
+
+
+
+
+Is this part of an application update/release ?
+No.
+ 
+What testing was done to ensure the success of this release?
+Testing was done on dev and qa
+ 
+Describe how to determine the success of the release
+
+This query should run with no problems
+
+exec p_fetch_medgrp_staffing
+/
+
+Provide SVN location where this document should be saved.
+/svnroot/medgrp-revenue/trunks/documentation
+ 
+ 

@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<web-app version="3.1" xmlns="http://xmlns.jcp.org/xml/ns/javaee"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://xmlns.jcp.org/xml/ns/javaee http://xmlns.jcp.org/xml/ns/javaee/web-app_3_1.xsd">
+	<display-name>clinfo</display-name>
+	<context-param>
+		<param-name>facelets.DEVELOPMENT</param-name>
+		<param-value>true</param-value>
+	</context-param>
+	<context-param>
+		<param-name>localhost_uid</param-name>
+		<param-value>209166</param-value>
+	</context-param>
+	<context-param>
+		<param-name>primefaces.THEME</param-name>
+		<param-value>afternoon</param-value>
+	</context-param>
+	<filter>
+		<filter-name>Badg Authentication Filter</filter-name>
+		<filter-class>edu.ucsd.som.service.badgws.auth.BadgAuthenticationFilter</filter-class>
+	</filter>
+	<filter-mapping>
+		<filter-name>Badg Authentication Filter</filter-name>
+		<url-pattern>/views/*</url-pattern>
+	</filter-mapping>
+	<servlet>
+		<servlet-name>Faces Servlet</servlet-name>
+		<servlet-class>javax.faces.webapp.FacesServlet</servlet-class>
+		<load-on-startup>1</load-on-startup>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>Faces Servlet</servlet-name>
+		<url-pattern>*.html</url-pattern>
+	</servlet-mapping>
+	<welcome-file-list>
+		<welcome-file>index.htm</welcome-file>			
+	</welcome-file-list>
+	<session-config>
+		<!-- Session idle timeout in min. -->
+		<session-timeout>30</session-timeout>
+	</session-config>
+	<error-page>
+		<exception-type>java.lang.Throwable</exception-type>
+		<location>/views/error/errorPage.html</location>
+	</error-page>
+</web-app>

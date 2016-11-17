@@ -1,0 +1,60 @@
+From:	Kaino, Cheryl
+Sent:	Thursday, April 14, 2016 10:59 AM
+To:	O'Donnell, Edward; Strout, Glenn
+Cc:	Roesler, Paul; Yebba, Michael; 'somdev1@ucsd.edu'
+Subject:	RE: Production Database Modification vchs-budget
+
+Approved
+
+From: O'Donnell, Edward  
+Sent: Thursday, April 14, 2016 10:58 AM 
+To: Strout, Glenn; Kaino, Cheryl 
+Cc: Roesler, Paul; Yebba, Michael; 'somdev1@ucsd.edu' 
+Subject: Production Database Modification vchs-budget
+
+Date of Request:
+4/14/2016
+ 
+Requested date/time of the release:
+As soon as doable.
+ 
+What database needs to be modified?
+Vchs-budget
+ 
+Reason(s) for the change ? Two views need to be dropped and recreated. 
+V_datagroup_summary_stage and v_datagroup_summary
+Does this affect a TableSync job? No
+ 
+Before the release should the entire database be backed up  ? No.
+ 
+Before the release should specific database tables be backed up ? No.
+List the step-by-step release process.
+
+2 sql files are in:
+
+‘/mnt/nwserver/dmgdb/BADG/ApplicationDevelopment/Files/ToBeDeployed/vchs-budget/vchs-
+budget.commit.sql’
+‘/mnt/nwserver/dmgdb/BADG/ApplicationDevelopment/Files/ToBeDeployed/vchs-budget/vchs-
+budget.rollback.sql’
+ 
+
+1.	In the vchs-budget DB on the ms production server, run the vchs-budget.commit.sql . It has a 
+drop command and then a create command for each of the two views. If it fails, run the 2nd 
+command: vchs-budget.rollback.sql
+ 
+ 
+Is this part of an application update/release ?
+Yes, release document to follow.
+ 
+What testing was done to ensure the success of this release?
+Table values confirmed on dev, qa. DB from prod was dumped onto dev and the above commands were 
+run with great success.
+ 
+ 
+Describe how to determine the success of the release: do a select * from v_datagroup_summary and 
+you should see the divisionId column. This is new.
+ 
+Provide SVN location where this document should be saved.
+/svnroot/medgrp-revenue/trunks/documentation
+ 
+ 

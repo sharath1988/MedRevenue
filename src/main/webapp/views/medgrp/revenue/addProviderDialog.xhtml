@@ -1,0 +1,66 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:p="http://primefaces.org/ui">
+	<p:dialog id="addProviderDialog" 
+				header="Add Provider to Worksheet"
+				widgetVar="addProviderDialogVar" 
+				styleClass="add-provider-overlay" 
+				hideEffect="fade" 
+				draggable="false" 
+				modal="true"
+				resizable="false">
+		<h:form id="provider">
+			<p:messages severity="warn,error,fatal" id="msg"/>
+			<div class="add-provider-section">
+				<h:panelGrid columns="2" class="add-provider">
+					<h:outputLabel for="providerAutoComplete" value="Name (*):"/>
+					<p:autoComplete 
+						id="providerAutoComplete" 
+						var="provider"
+						itemLabel="#{provider.employeeFullname}"
+						itemValue="#{provider}"
+						converter="#{addProviderProviderConverter}"
+						minQueryLength="3"
+						forceSelection="true"
+						emptyMessage="No providers matched your search criteria."
+						completeMethod="#{addProviderView.autoComplete}"
+						size="35"
+						effect="fade"
+						required="true"
+						requiredMessage="Provider name is required."
+						value="#{addProviderView.provider}">
+						<f:facet name="itemtip">
+							<h:outputText value="UCSD ID: #{provider.employeeUcsdId}"/>
+						</f:facet>
+					</p:autoComplete>
+					
+					<h:outputLabel value="Care Payment Rate (*):" for="carePaymentRateTxt"/>
+					<p:inputText value="#{addProviderView.carePaymentRate}" required="true" requiredMessage="Care Payment rate is required." id="carePaymentRateTxt">
+						<p:ajax/>
+					</p:inputText>
+					
+					<h:outputLabel rendered="#{divisionInfoBean.divisionInfo.isPsychiatry}" for="siteOfService" value="Site of Service:"/>
+					<p:selectOneMenu 
+						rendered="#{divisionInfoBean.divisionInfo.isPsychiatry}" 
+						required="true" 
+						requiredMessage="Site of service is required."
+						value="#{addProviderView.siteOfService}">
+						<p:ajax partialSubmit="true" update="@form" resetValues="true"/>
+						<f:selectItem itemLabel="Select One" itemValue=""/>
+						<f:selectItems value="#{addProviderView.siteOfServiceValues}"/>
+					</p:selectOneMenu>
+				</h:panelGrid>
+				<p:commandButton 
+					id="addRevenueProviderBtn"
+					value="Add to Worksheet" 
+					actionListener="#{addProviderView.add}" 
+					onstart="PF('addProviderDialogVar').hide(); PF('blockWV').show();" 
+					oncomplete="PF('blockWV').hide(); $.fn.clearFilter();" 
+					resetValues="true"
+					update="providerAutoComplete,:container,:saveStatus,:msg"/>
+			</div>
+		</h:form>
+	</p:dialog>
+</ui:composition>

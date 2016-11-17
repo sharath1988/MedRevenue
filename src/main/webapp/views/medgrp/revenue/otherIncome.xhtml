@@ -1,0 +1,47 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:p="http://primefaces.org/ui">
+	<h:form id="otherIncome" styleClass="other-income">
+		<p:panel>
+			<h2><h:outputText value="Other Income"/></h2>
+			<p:messages id="messages" severity="error,fatal" autoUpdate="true"/>
+			<h:inputHidden id="divisionId" value="#{otherIncomeView.divisionId}"/>
+			<h:panelGrid id="grid" columns="3">
+				<h:outputLabel for="incentive" value="Incentive:"/>
+				<p:inputText id="incentive" styleClass="enter-entry" required="true" value="#{otherIncomeView.otherIncome.incentive}">
+					<p:ajax event="change" listener="#{otherIncomeView.update}" update="messages,incentive,total,:saveStatus"/>
+					<f:convertNumber type="number" maxFractionDigits="0"/>
+				</p:inputText>
+				<h:outputText styleClass="tip" value="Incentive payments received such as PCIP."/>
+				
+				<h:outputLabel for="membership" value="Membership:"/>
+				<p:inputText id="membership" styleClass="enter-entry" required="true" value="#{otherIncomeView.otherIncome.membership}">
+					<p:ajax event="change" listener="#{otherIncomeView.update}" update="messages,membership,total,:saveStatus"/>
+					<f:convertNumber type="number" maxFractionDigits="0"/>
+				</p:inputText>
+				<h:outputText styleClass="tip" value="Membership fees (and other miscellaneous fees)."/>
+				
+				<h:outputLabel for="stip" value="Stip:" rendered="false"/>
+				<p:inputText id="stip" styleClass="enter-entry" required="true" value="#{otherIncomeView.otherIncome.stip}" rendered="false">
+					<p:ajax event="change" listener="#{otherIncomeView.update}" update="messages,stip,total,:saveStatus"/>
+					<f:convertNumber type="number" maxFractionDigits="0"/>
+				</p:inputText>
+				<h:outputText styleClass="tip" value="Short term investment pool." rendered="false"/>
+				
+				<h:outputLabel for="other" value="Other:"/>
+				<p:inputText id="other" styleClass="enter-entry" required="true" value="#{otherIncomeView.otherIncome.other}">
+					<p:ajax event="change" listener="#{otherIncomeView.update}" update="messages,other,total,:saveStatus"/>
+					<f:convertNumber type="number" maxFractionDigits="0"/>
+				</p:inputText>
+				<h:outputText styleClass="tip" value="Any income outside IDX or Non-Fee for Service income ex. Concierge PMPM payments / memberships."/>
+				
+				<h:outputLabel for="total" value="Total:"/>
+				<h:outputText id="total" value="#{otherIncomeView.otherIncomeTotal}">
+					<f:convertNumber type="currency" currencySymbol="" maxFractionDigits="0"/>
+				</h:outputText>
+			</h:panelGrid>
+		</p:panel>
+	</h:form>
+</ui:composition>

@@ -1,0 +1,106 @@
+From:	O'Donnell, Edward
+Sent:	Wednesday, May 25, 2016 10:38 AM
+To:	Strout, Glenn; Yebba, Michael
+Cc:	Kaino, Cheryl
+Subject:	Production Database Modification vchs-budget_20160525_v2
+
+Date of Request:
+5/26/2016
+ 
+Requested date/time of the release:
+As soon as doable.
+ 
+What database needs to be modified?
+Vchs-budget 
+ 
+Reason(s) for the change ? Redo of stored proc. Lin has added extra criteria to a view for some reason 
+or other.
+
+Does this affect a TableSync job? No
+ 
+Before the release should the entire database be backed up  ? No.
+ 
+Before the release should specific database tables be backed up ? No.
+
+
+List the step-by-step release process.
+
+
+Run these commands from top to bottom in the vchs-budget DB:
+
+drop procedure [dbo].[p_fetch_dept_clinical_benefit]
+/
+
+CREATE PROCEDURE [dbo].[p_fetch_dept_clinical_benefit]
+AS BEGIN
+/* this proc gets lineItemId=109 for DG=0 and DG=1
+    DG=0 is negative and DG=1 is positive
+*/
+DECLARE @DataTable AS BudgetValueTableType;
+DECLARE @LineItemId int;
+DECLARE @datagroupId int;
+DECLARE @missionId int;
+SET @datagroupId = 0;
+SET @LineItemId = 109;
+SET @missionId = 2;
+
+    -- ---------- START AHS
+    INSERT INTO @DataTable(missionId, divisionId, input_amount, datagroupId)
+    select @missionId as missionId, divisionId, 
+        sum(input_amount) as input_amount,
+       @datagroupId as datagroupId
+    from [vchs-budget].dbo.v_refresh_109
+    group by divisionId
+    order by divisionId;
+
+    /* call the proc: [dbo].[p_check_budget] to make sure
+        the budget table and the budgetValue table have the existing
+        values */ 
+
+    -- NOW multiply by -1 for AHS as it is negative
+    UPDATE @DataTable set input_amount = input_amount * -1;
+    exec [dbo].[p_check_budget] @DataTable, @LineItemId, @datagroupId;
+    --  ---------- DONE AHS
+    delete from @DataTable;
+    -- NOW multiply by -1 again for the MEDGRP as it is positive
+    SET @datagroupId = 1;
+
+    INSERT INTO @DataTable(missionId, divisionId, input_amount, datagroupId)
+    select @missionId as missionId, v.divisionId, sum(input_amount) + manAdj as input_amount, 
+@datagroupId as datagroupId
+    from v_refresh_109 v
+    join FinManStaging.dbo.somMgDivisionView dv on dv.somDivisionId = v.divisionId
+    join (
+        SELECT DivisionId, sum(isnull(ManualAdjustment,0)) as manAdj from Budget b 
+        join BudgetValue bv on bv.BudgetId = b.BudgetId
+        join FinManStaging.dbo.somMgDivisionView dv on dv.somDivisionId = b.DivisionId
+        where b.datagroupId = 0 and bv.LineItemId = 109
+        and dv.somMajorGroupId not in (8,14,17,5,16,26,40,41,42,43)
+        group by DivisionId
+    ) man on man.DivisionId = dv.somDivisionId
+    where dv.somMajorGroupId not in (8,14,17,5,16,26,40,41,42,43)
+    group by v.divisionId, manAdj
+
+    exec [dbo].[p_check_budget] @DataTable, @LineItemId, @datagroupId;
+
+END;
+GO
+/
+
+Is this part of an application update/release ?
+No.
+ 
+What testing was done to ensure the success of this release?
+Testing was done on dev and qa
+ 
+Describe how to determine the success of the release
+
+This query should run with no problems
+
+exec [dbo].[p_fetch_dept_clinical_benefit]
+/
+
+Provide SVN location where this document should be saved.
+/svnroot/medgrp-revenue/trunks/documentation
+ 
+ 

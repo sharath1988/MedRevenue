@@ -1,0 +1,86 @@
+From:	Yebba, Michael
+Sent:	Wednesday, May 18, 2016 2:34 PM
+To:	Kaino, Cheryl; O'Donnell, Edward; Strout, Glenn
+Cc:	Roesler, Paul
+Subject:	Production Database Modification vchs-budget # 3
+
+Date of Request:
+5/18/2016
+ 
+Requested date/time of the release:
+As soon as doable.
+ 
+What database needs to be modified?
+Vchs-budget 
+ 
+Reason(s) for the change ? This is a fix to include zero out values from CPO expense budget detail 
+table.  Landing page was not updating them back to zero because they were being excluded from the 
+view.
+
+Does this affect a TableSync job? No
+ 
+Before the release should the entire database be backed up  ? No.
+ 
+Before the release should specific database tables be backed up ? no.
+List the step-by-step release process.
+
+USE [vchs-budget]
+GO
+IF OBJECT_ID('[dbo].V_MEDGRP_EXPENSE') IS NOT NULL
+    DROP VIEW [dbo].V_MEDGRP_EXPENSE
+GO
+CREATE VIEW [dbo].V_MEDGRP_EXPENSE AS
+SELECT * FROM (
+    SELECT distinct e.*, COALESCE(sdo.division_id, sdomg.division_id) as divId, 
+a.PLLineItemId, m.Mission, (CASE WHEN e.fund = '60100A' OR mg.somMajorGroupId IN 
+(16,26,40,41,42,43) THEN 1 else 0 end) as datagroup 
+    FROM openquery(BADGMySQL, '
+        SELECT 
+            m.row_id, m.category, m.account, 
+            d.sheet_index, d.budgetAcctGrp, d.actual_projection, d.proposed_budget,
+            ui.fund, ui.program, ui.organization, lc.MissionId
+        FROM budget.expense_budget_detail d
+        JOIN budget.expense_budget_master m ON m.row_id = d.row_id
+        JOIN som_portal.ucsd_index ui ON ui.indx = d.sheet_index
+        LEFT JOIN legacy_data.lcmeCat lc ON lc.FUND = ui.fund AND lc.PROGRAM = 
+ui.program
+        WHERE m.row_id >= 14
+    ') e
+    LEFT JOIN FinManStaging.dbo.som_division_org sdo ON sdo.org_id = e.organization 
+and e.fund <> '60100A'
+    LEFT JOIN FinManStaging.dbo.som_division_org_medgrp sdomg ON sdomg.org_id = 
+e.organization and e.fund = '60100A'
+    LEFT JOIN FinManStaging.dbo.somMgDivisionView mg ON mg.somDivisionId = 
+COALESCE(sdo.division_id, sdomg.division_id)
+    JOIN FinManStaging.dbo.som_rollup sr ON sr.orgNum = e.organization
+    JOIN hsFiscal.dbo.FinManAccountLineItem a ON a.Account = e.account
+    JOIN hsFiscal.dbo.FinManMissionId m ON m.MissionId = e.MissionId
+) x where datagroup = 1
+GO
+
+Is this part of an application update/release ?
+No.
+ 
+What testing was done to ensure the success of this release?
+Testing was done on dev and qa
+ 
+Describe how to determine the success of the release
+
+
+use [vchs-budget]
+GO
+exec p_fetch_mgfs
+/
+
+Following Query should return zero rows
+select * from Budget b
+join BudgetValue v on v.BudgetId = b.BudgetId
+where v.LineItemId = 201 and b.datagroupId = 1 and DivisionId = 6
+and CalculatedValue <> 0 
+/
+
+
+Provide SVN location where this document should be saved.
+/svnroot/medgrp-revenue/trunks/documentation
+ 
+ 

@@ -1,0 +1,167 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:p="http://primefaces.org/ui">
+		
+	<h:form>
+	
+		<h2>Projected Charges and Adjustments for #{budgetMetadata.currentBudgetYearLabel}</h2>
+		
+		<h:panelGroup rendered="#{empty revenueAdjustmentsView.adjByPayerList}">
+			<em>No divisions to display.</em>
+		</h:panelGroup>	
+		
+		
+		<p:dataTable value="#{revenueAdjustmentsView.adjByPayerList}" var="adj" styleClass="provider-split-table">
+		
+			<p:column headerText="Payer Type" >
+				<h:outputText value="#{adj.plCategory}"/>
+				<f:facet name="footer">
+					<h:outputText value="TOTALS" />
+				</f:facet>
+			</p:column>
+			
+			<p:column headerText="Proj PL %" >
+				<h:outputText value="#{adj.plChargePerc}">
+					<f:convertNumber maxFractionDigits="2" minFractionDigits="2" type="percent"/>				
+				</h:outputText>
+				<f:facet name="footer">
+					<h:outputText value="" />
+				</f:facet>				
+			</p:column>			
+			
+			<p:column headerText="Proj Charges" >
+				<h:outputText value="#{adj.totalProjPlCharges}">
+					<f:convertNumber currencySymbol="$" maxFractionDigits="0" minFractionDigits="0" type="currency"/>				
+				</h:outputText>
+				<f:facet name="footer">
+					<h:outputText value="#{revenueAdjustmentsView.adjTotals.totalProjCharges}" >
+						<f:convertNumber currencySymbol="$" maxFractionDigits="0" minFractionDigits="0" type="currency"/>
+					</h:outputText>
+				</f:facet>				
+			</p:column>
+			
+
+			<p:column headerText="BAD DEBT Adj %" >
+				<h:outputText value="#{adj.badDebtAdjPerc}">
+					<f:convertNumber maxFractionDigits="2" minFractionDigits="2" type="percent"/>				
+				</h:outputText>
+				<f:facet name="footer">
+					<h:outputText value="#{revenueAdjustmentsView.adjTotals.totalBadDebtAdjPerc}" >
+						<f:convertNumber maxFractionDigits="2" minFractionDigits="2" type="percent"/>
+					</h:outputText>
+				</f:facet>				
+			</p:column>			
+			<p:column headerText="BAD DEBT Adj" >
+				<h:outputText value="#{adj.badDebtAdj}">
+					<f:convertNumber currencySymbol="$" maxFractionDigits="0" minFractionDigits="0" type="currency"/>				
+				</h:outputText>
+				<f:facet name="footer">
+					<h:outputText value="#{revenueAdjustmentsView.adjTotals.totalBadDebtAdj}" >
+						<f:convertNumber currencySymbol="$" maxFractionDigits="0" minFractionDigits="0" type="currency"/>
+					</h:outputText>
+				</f:facet>				
+			</p:column>
+
+
+			<p:column headerText="CAP Adj %" >
+				<h:outputText value="#{adj.capitationAdjPerc}">
+					<f:convertNumber maxFractionDigits="2" minFractionDigits="2" type="percent"/>				
+				</h:outputText>
+				<f:facet name="footer">
+					<h:outputText value="#{revenueAdjustmentsView.adjTotals.totalCapAdjPerc}" >
+						<f:convertNumber maxFractionDigits="2" minFractionDigits="2" type="percent"/>
+					</h:outputText>
+				</f:facet>				
+			</p:column>			
+			<p:column headerText="CAP Adj" >
+				<h:outputText value="#{adj.capitationAdj}">
+					<f:convertNumber currencySymbol="$" maxFractionDigits="0" minFractionDigits="0" type="currency"/>				
+				</h:outputText>
+				<f:facet name="footer">
+					<h:outputText value="#{revenueAdjustmentsView.adjTotals.totalCapAdj}" >
+						<f:convertNumber currencySymbol="$" maxFractionDigits="0" minFractionDigits="0" type="currency"/>
+					</h:outputText>
+				</f:facet>				
+			</p:column>
+
+
+			<p:column headerText="OTHER Adj %" >
+				<h:outputText value="#{adj.otherAdjPerc}">
+					<f:convertNumber maxFractionDigits="2" minFractionDigits="2" type="percent"/>				
+				</h:outputText>
+				<f:facet name="footer">
+					<h:outputText value="#{revenueAdjustmentsView.adjTotals.totalOtherAdjPerc}" >
+						<f:convertNumber maxFractionDigits="2" minFractionDigits="2" type="percent"/>
+					</h:outputText>
+				</f:facet>				
+			</p:column>			
+			<p:column headerText="OTHER Adj" >
+				<h:outputText value="#{adj.otherAdj}">
+					<f:convertNumber currencySymbol="$" maxFractionDigits="0" minFractionDigits="0" type="currency"/>				
+				</h:outputText>
+				<f:facet name="footer">
+					<h:outputText value="#{revenueAdjustmentsView.adjTotals.totalOtherAdj}" >
+						<f:convertNumber currencySymbol="$" maxFractionDigits="0" minFractionDigits="0" type="currency"/>					
+					</h:outputText>
+				</f:facet>				
+			</p:column>
+
+			<p:column headerText="Total Adj" >
+				<h:outputText value="#{adj.totalAdj}">
+					<f:convertNumber currencySymbol="$" maxFractionDigits="0" minFractionDigits="0" type="currency"/>				
+				</h:outputText>
+				<f:facet name="footer">
+					<h:outputText value="#{revenueAdjustmentsView.adjTotals.totalAdj}" >
+						<f:convertNumber currencySymbol="$" maxFractionDigits="0" minFractionDigits="0" type="currency"/>
+					</h:outputText>
+				</f:facet>				
+			</p:column>																											
+		</p:dataTable>
+		
+		<br/>
+			
+		<p:panelGrid columns="1" style="width: 50%">
+		<h:outputText value="ADJUSTMENT SUMMARY" style="font-weight: bold"/>
+			<p:panelGrid columns="2">
+				
+				<h:outputText value="Total Projected Charges: " />
+				
+				<h:outputText value="#{revenueAdjustmentsView.adjTotals.totalProjCharges}" >
+					<f:convertNumber currencySymbol="$" maxFractionDigits="0" minFractionDigits="0" type="currency"/>
+				</h:outputText>	
+				
+				<h:outputText value="Total Adjustments:" />
+				
+				<h:outputText value="#{revenueAdjustmentsView.adjTotals.totalAdj}" >
+					<f:convertNumber currencySymbol="$" maxFractionDigits="0" minFractionDigits="0" type="currency"/>
+				</h:outputText>
+				
+				<h:outputText value="Total Adj %" />
+				
+				<h:outputText value="#{revenueAdjustmentsView.adjTotals.totalAdjPerc}" >
+					<f:convertNumber maxFractionDigits="2" minFractionDigits="2" type="percent"/>
+				</h:outputText>				
+				
+				<h:outputText value="Expected Revenue:" title="Total Projected Charges + Total Adjustments" style="font-weight: bold; cursor: help"/>
+				
+				<h:outputText value="#{revenueAdjustmentsView.adjTotals.totalAdjCharges}" >
+					<f:convertNumber currencySymbol="$" maxFractionDigits="0" minFractionDigits="0" type="currency"/>
+				</h:outputText>															
+				
+				<h:outputText value="Total CAP Distribution:" />
+				
+				<h:outputText value="#{revenueAdjustmentsView.adjTotals.totalCapDistribution}" >
+					<f:convertNumber currencySymbol="$" maxFractionDigits="0" minFractionDigits="0" type="currency"/>
+				</h:outputText>									
+				
+				<h:outputText value="Net Expected Revenue:" style="font-weight: bold; cursor: help" title="Expected Revenue + Total CAP Distribution"/>
+				
+				<h:outputText value="#{revenueAdjustmentsView.adjTotals.totalExpectedRevenue}" style="font-weight: bold">
+					<f:convertNumber currencySymbol="$" maxFractionDigits="0" minFractionDigits="0" type="currency"/>
+				</h:outputText>									
+			</p:panelGrid>
+		</p:panelGrid>
+	</h:form>
+</ui:composition>

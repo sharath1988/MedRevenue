@@ -1,0 +1,150 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:p="http://primefaces.org/ui" template="/layout/template_wide.xhtml">
+	<ui:define name="body">
+		<f:metadata>
+			<f:viewParam name="departmentId" value="#{medGrpRevenueDepartmentView.departmentId}" />
+			<f:event type="preRenderView" listener="#{medGrpRevenueDepartmentView.loadData}"/>
+		</f:metadata>
+		<h2>#{medGrpRevenueDepartmentView.departmentName} Department Rollup</h2>
+		<p:breadCrumb >
+			<p:menuitem value="Revenue" url="list.html"/>
+			<p:menuitem value="#{medGrpRevenueDepartmentView.departmentName}" url="#" />
+		</p:breadCrumb>
+		<h:panelGroup rendered="#{empty medGrpRevenueDepartmentView.departmentRollup}">
+			<em>No divisions to display.</em>
+		</h:panelGroup>
+		<h:form id="departmentRollupForm">
+			<p:dataTable value="#{medGrpRevenueDepartmentView.departmentRollup}" id="departmentRollupTable"
+				var="division" paginator="true" rows="20" paginatorPosition="bottom" style="width: 100%;" sortMode="multiple" paginatorAlwaysVisible="false">
+				<p:column headerText="Division Name" width="150" sortBy="#{division.divisionName}">
+		            <p:link outcome="worksheet" value="#{division.divisionName}">
+		            	<f:param name="divisionId" value="#{division.divisionId}"/>
+		            </p:link>
+					<f:facet name="footer">
+						<div style="text-align: right">TOTALS</div>
+					</f:facet>
+				</p:column>
+				<p:column headerText="Id" width="32" sortBy="#{division.divisionId}">
+					<h:outputText value="#{division.divisionId}" />
+				</p:column>
+				<p:column sortBy="#{division.projectedCharges}" styleClass="current-year">
+					<f:facet name="header">
+						<div>#{budgetMetadata.currentBudgetYearLabel}<br/>Charges</div>
+					</f:facet>
+					<h:outputText value="#{division.projectedCharges}">
+						<f:convertNumber type="currency" currencySymbol=""/>
+					</h:outputText>
+					<f:facet name="footer">
+						<h:outputText value="#{medGrpRevenueDepartmentView.totals.projectedCharges}">
+							<f:convertNumber type="currency" currencySymbol=""/>
+						</h:outputText>
+					</f:facet>
+				</p:column>
+				<p:column sortBy="#{division.projectedCollections}" styleClass="current-year" rendered="false">
+					<f:facet name="header">
+						<div>#{budgetMetadata.currentBudgetYearLabel}<br/>Collections</div>
+					</f:facet>
+					<h:outputText value="#{division.projectedCollections}">
+						<f:convertNumber type="currency" currencySymbol=""/>
+					</h:outputText>
+					<f:facet name="footer">
+						<h:outputText value="#{medGrpRevenueDepartmentView.totals.projectedCollections}" >
+							<f:convertNumber type="currency" currencySymbol=""/>
+						</h:outputText>
+					</f:facet>
+				</p:column>
+				<p:column sortBy="#{division.projectedTRVUs}" styleClass="current-year">
+					<f:facet name="header">
+						<div>#{budgetMetadata.currentBudgetYearLabel}<br/>tRVUs</div>
+					</f:facet>
+					<h:outputText value="#{division.projectedTRVUs}">
+						<f:convertNumber pattern="###,###" />
+					</h:outputText>
+					<f:facet name="footer">
+						<h:outputText value="#{medGrpRevenueDepartmentView.totals.projectedTRVUs}" >
+							<f:convertNumber pattern="###,###" />
+						</h:outputText>
+					</f:facet>
+				</p:column>
+				<p:column sortBy="#{division.projectedWRVUs}" styleClass="current-year">
+					<f:facet name="header">
+						<div>#{budgetMetadata.currentBudgetYearLabel}<br/>wRVUs</div>
+					</f:facet>
+					<h:outputText value="#{division.projectedWRVUs}">
+						<f:convertNumber pattern="###,###" />
+					</h:outputText>
+					<f:facet name="footer">
+						<h:outputText value="#{medGrpRevenueDepartmentView.totals.projectedWRVUs}" >
+							<f:convertNumber pattern="###,###" />
+						</h:outputText>
+					</f:facet>
+				</p:column>
+				<p:column sortBy="#{division.priorYearCharges}">
+					<f:facet name="header">
+						<div>#{budgetMetadata.priorBudgetYearLabel}<br/> Charges</div>
+					</f:facet>
+					<h:outputText value="#{division.priorYearCharges}">
+						<f:convertNumber type="currency" currencySymbol=""/>
+					</h:outputText>
+					<f:facet name="footer">
+						<h:outputText value="#{medGrpRevenueDepartmentView.totals.priorYearCharges}" >
+							<f:convertNumber type="currency" currencySymbol=""/>
+						</h:outputText>
+					</f:facet>
+				</p:column>
+				<p:column sortBy="#{division.priorYearCollections}" rendered="false">
+					<f:facet name="header">
+						<div>#{budgetMetadata.priorBudgetYearLabel}<br/>Collections</div>
+					</f:facet>
+					<h:outputText value="#{division.priorYearCollections}">
+						<f:convertNumber type="currency" currencySymbol=""/>
+					</h:outputText>
+					<f:facet name="footer">
+						<h:outputText value="#{medGrpRevenueDepartmentView.totals.priorYearCollections}" >
+							<f:convertNumber type="currency" currencySymbol=""/>
+						</h:outputText>
+					</f:facet>
+				</p:column>
+				<p:column sortBy="#{division.priorYearTRVUs}">
+					<f:facet name="header">
+						<div>#{budgetMetadata.priorBudgetYearLabel}<br/>tRVUs</div>
+					</f:facet>
+					<h:outputText value="#{division.priorYearTRVUs}">
+						<f:convertNumber pattern="###,###" />
+					</h:outputText>
+					<f:facet name="footer">
+						<h:outputText value="#{medGrpRevenueDepartmentView.totals.priorYearTRVUs}" >
+							<f:convertNumber pattern="###,###" />
+						</h:outputText>
+					</f:facet>
+				</p:column>
+				<p:column sortBy="#{division.priorYearWRVUs}">
+					<f:facet name="header">
+						<div>#{budgetMetadata.priorBudgetYearLabel}<br/>wRVUs</div>
+					</f:facet>
+					<h:outputText value="#{division.priorYearWRVUs}">
+						<f:convertNumber pattern="###,###" />
+					</h:outputText>
+					<f:facet name="footer">
+						<h:outputText value="#{medGrpRevenueDepartmentView.totals.priorYearWRVUs}" >
+							<f:convertNumber pattern="###,###" />
+						</h:outputText>
+					</f:facet>
+				</p:column>
+			</p:dataTable>
+			<!--  DATA EXPORT LINKS -->
+			<p:panelGrid columns="2" border="1">
+				<h:commandLink>
+					<p:graphicImage library="theme" name="img/excel.png" />
+					<p:dataExporter type="xls" target="departmentRollupTable" 
+						fileName="departmentRollup-#{medGrpRevenueDepartmentView.departmentId}-#{medGrpRevenueDepartmentView.departmentName}"
+						postProcessor="#{customDataExporter.revenueWorksheetPostProcess}" 
+						pageOnly="false"/>
+				</h:commandLink>
+			</p:panelGrid>
+		</h:form>
+	</ui:define>
+</ui:composition>

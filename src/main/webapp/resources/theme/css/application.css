@@ -1,0 +1,377 @@
+@CHARSET "ISO-8859-1";
+
+.ui-widget {
+	font-size: 90%;
+	font-family: arial,helvetica,clean,sans-serif;
+}
+.ui-widget .ui-widget {
+	font-size: 100%;
+}
+.ui-widget input, .ui-widget select, .ui-widget textarea, .ui-widget button {
+	font-family: arial,helvetica,clean,sans-serif;
+}
+
+body {
+	font-family: Arial,Verdana,sans-serif;
+}
+
+.layoutBody {
+	padding-top: 129px;
+}
+
+.layoutHeader {
+	position: fixed;
+	left: 0px;
+	top: 0px;
+	z-index: 99;
+}
+
+.layoutMenu {
+	position: fixed;
+	left: 0px;
+	top: 96px;
+	width: 100%;
+	z-index: 100;
+}
+
+.logoheader {
+	width: 33%;
+}
+
+.prodheader {
+	color: #FFFFFF;
+	font-family: 'Times New Roman';
+	font-size: 22px;
+	text-align: center;
+	vertical-align: middle;
+	text-transform: uppercase;
+	padding: 0px 0px 0px 0px; 
+	width: 33%;
+}
+.prodheader .strong { 
+	font-size: 32px;
+	font-weight: normal;
+}
+
+.testheader {
+	color: #FFFFFF;
+	background-color: lime;
+	font-family: 'Times New Roman';
+	font-size: 22px;
+	text-align: center;
+	vertical-align: middle;
+	text-transform: uppercase;
+	padding: 0px 0px 0px 0px; 
+	width: 33%;
+}
+.testheader .strong { 
+	font-size: 32px;
+	font-weight: normal;
+}
+
+.userheader {
+	width: 33%;
+}
+
+.bigWrapper2 {
+	/*position:relative;*/
+	color: #000;
+	width: 100%;
+	padding: 0 0 0 0;
+	background: url("#{resource['theme:img/bgWrapper2.gif']}") repeat-y;
+}
+
+.layoutWrapperContent{
+	/*position:relative;*/
+	background: #ffffff;
+}
+
+.layoutContent .body {
+	/* Adjust padding-top to accommodate any fixed content at top of content panel */
+	/* Clone this class (layoutCloneContent) for other screens as necessary */
+	padding-left: 15px;
+	padding-top: 15px;
+	padding-right: 15px;
+}
+.layoutContent form {
+	/* Necessary for IE */
+	margin: 0 0 10px 0;
+	padding: 0;
+}
+
+.narrowGrid.ui-panelgrid td {
+	padding: 0;
+}
+
+.jumboHeader .cellInline {
+	background-color: #f3eee7;
+}
+
+.jumboHeader .nameInline {
+	background-color: #e1d4c2;
+}
+
+.jumboInfo .cellInline {
+	background-color: #dfe7f2;
+}
+
+.jumboInfo .nameInline {
+	background-color: #b0c4de;
+}
+
+.jumboAward .cellInline {
+	background-color: #dff3e6;
+}
+
+.jumboAward .nameInline {
+	background-color: #b0e2c0;
+}
+
+
+
+
+
+/* Below is mostly mgfrontdesk styles. Pull anything needed up above here (rename if necessary).
+
+.fdname {
+	font-weight: bold;
+}
+
+.fdvalue {
+	font-weight: normal;
+}
+
+.invisible {
+	color: #ffffff;
+}
+
+.pointer {
+	cursor: pointer;
+}
+
+caption.fdcaption {
+	caption-side: bottom;
+	text-align: left;
+	padding-top: 5px;
+	padding-left: 1px;
+}
+
+.left {
+	text-align: left;
+}
+
+.right {
+	text-align: right;
+}
+
+.rf-tb-itm {
+	padding: 0 2px;
+}
+
+.rf-tb-sep {
+	padding: 0 2px;
+}
+
+.rf-ii-btn-prepos {
+	top: auto;
+	right: auto;
+	left: 0px;
+	bottom: 0px;
+}
+
+.rf-ii-btn-cntr {
+	z-index: 100;
+}
+
+input[type=button].inlineFrm, input[type=submit].inlineFrm {
+	margin-top: 0;
+	margin-right: 0;
+	margin-left: .5em;
+}
+
+input[type="button"].inlineTbl, input[type="submit"].inlineTbl {
+	margin-top: 0;
+	margin-right: 0;
+}
+
+.break {
+	clear: both;
+}
+
+textarea.wideText {
+	width: 360px;
+	height: 100px;
+}
+
+.titleRow {
+	padding-bottom: .8em;
+}
+
+.detailRow, .totalRow {
+	margin-top: .1em;
+}
+
+.subtotalRow {
+	margin-top: .1em;
+	padding-bottom: .8em;
+}
+
+.titleFirst {
+	clear: left;
+	float: left;
+	font-weight: bold;
+	width: 7.5em;
+}
+
+.titleNext {
+	float: left;
+	font-weight: bold;
+}
+
+.rowFirst, .totalFirst {
+	clear: left;
+	float: left;
+	font-weight: bold;
+	width: 7.5em;
+	padding-top: .2em;
+}
+
+.subtotalFirst {
+	clear: left;
+	float: left;
+	font-weight: bold;
+	margin-left: 3em;
+	width: 4.5em;
+	padding-top: .2em;
+}
+
+.rowNext, .subtotalNext, .totalNext {
+	float: left;
+	padding-top: .2em;
+}
+
+.rowNextButton {
+	float:left;
+}
+
+.colIdx {
+	width: 10em;
+}
+
+.colAct {
+	width: 10em;
+}
+
+.colEdit {
+	width: 5em;
+}
+
+.colVar {
+	width: 10em;
+}
+
+.filler {
+	height: 1px;
+}
+
+.leftButton {
+	float: left;
+}
+
+.buttonMargin {
+	clear: left;
+	margin-left: 10em;
+	margin-right: 10em;
+}
+
+.rightButton {
+	float: right;
+}
+
+.buttonGap {
+	width: 5em;
+	height: 1px;
+}
+
+.unbalanced {
+	font-weight: bold;
+	color: red;
+}
+
+.balanced {
+	font-weight: bold;
+	color: green;
+}
+
+.lateBatch {
+	font-weight: bold;
+}
+
+.leftHeader {
+	float: left;
+	text-align: left;
+}
+
+.rightHeader {
+	float: right;
+	text-align: right;
+}
+
+.gutter {
+	width: 4em;
+	height: 1px;
+}
+
+.detailColumn {
+	vertical-align: top;
+}
+
+.topNav td a.disabledLink {
+	color: #c0c0c0;
+}
+
+.otherCashierName {
+	width: 90%;
+}
+
+.otherCashierStop {
+	width: 10%;
+}
+
+.pnlRow {
+	clear: both;
+	overflow: hidden;
+}
+
+.pnl1Col {
+	float: left;
+	width: 99.9%;
+}
+
+.pnl2Col {
+	float: left;
+	width: 49.9%;
+}
+
+.pnl3Col {
+	float: left;
+	width: 33.2%;
+}
+
+input[type="text"].bkMan,
+input[type="password"].bkMan,
+textarea[type="textarea"].bkMan {
+	background: DarkSalmon;
+}
+.bkMan {
+	background: DarkSalmon;
+}
+input[type="text"].bkTr,
+input[type="password"].bkTr,
+textarea[type="textarea"].bkTr {
+	background: transparent;
+}
+.bkTr {
+	background: transparent;
+}
+*/

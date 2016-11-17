@@ -1,0 +1,53 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:p="http://primefaces.org/ui" template="/layout/template.xhtml">
+	
+	<ui:define name="body">
+		<h:form id="budgetMetadata" >
+			<p:panel rendered="#{menuBean.isBudgetAdmin}">
+				<h2>Budget Season Metadata</h2><br/>
+				<p:messages id="messages" severity="error,fatal" autoUpdate="true"/>
+				<p:growl id="growl" severity="info" showDetail="true"/>
+				
+				<p:panelGrid columns="3">
+				
+					<h:outputText value="Budget Start Date:" />
+					<p:calendar value="#{budgetMetadataBean.budgetMetadata.budgetStartDate}" required="true" pattern="MM/dd/yyyy" id="budgetStartDate">
+						<p:ajax event="dateSelect" listener="#{budgetMetadataBean.updateMetadataOnChange}" update="messages,growl"/>
+					</p:calendar>
+					<h:outputText value="" />
+
+					<h:outputText value="Budget End Date:" />
+					<p:calendar value="#{budgetMetadataBean.budgetMetadata.budgetEndDate}" required="true" pattern="MM/dd/yyyy" id="budgetEndDate">
+						<p:ajax event="dateSelect" listener="#{budgetMetadataBean.updateMetadataOnChange}" update="messages,growl"/>
+					</p:calendar>
+					<h:outputText value="" />
+					
+					<h:outputText value="Budget Current Year:" />
+					<p:inputMask value="#{budgetMetadataBean.budgetMetadata.budgetCurrentYear}" id="budgetCurrentYear" required="true" mask="9999">
+						<p:ajax event="change" listener="#{budgetMetadataBean.updateMetadataOnChange}" update="messages,growl"/>
+					</p:inputMask>
+					<h:outputText value="Will be displayed as '#{budgetMetadataBean.budgetMetadata.currentBudgetYearLabel}'" />
+					
+					<h:outputText value="Budget Prior Year:" />
+					<p:inputMask value="#{budgetMetadataBean.budgetMetadata.budgetPriorYear}" id="budgetPriorYear" required="true" mask="9999">
+						<p:ajax event="change" listener="#{budgetMetadataBean.updateMetadataOnChange}" update="messages,growl"/>
+					</p:inputMask>
+					<h:outputText value="Will be displayed as '#{budgetMetadataBean.budgetMetadata.priorBudgetYearLabel}'" />
+					
+					<h:outputText value="Default CAP tRVUs / Collections Rate:" />
+					<p:inputText value="#{budgetMetadataBean.budgetMetadata.defaultCapRate}" id="defaultCapRate" required="true">
+						<f:convertNumber type="number"/>
+						<p:ajax event="change" listener="#{budgetMetadataBean.updateMetadataOnChange}" update="messages,growl"/>
+					</p:inputText>
+					<h:outputText value="" />
+				
+					
+				</p:panelGrid>
+			</p:panel>
+		</h:form>
+		
+	</ui:define>
+</ui:composition>

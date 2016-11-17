@@ -1,0 +1,105 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:p="http://primefaces.org/ui">
+		
+	<h:form id="cpForm">
+	
+		<h2>Care Payments By Provider for #{budgetMetadata.currentBudgetYearLabel}</h2>
+		
+		<h:panelGroup rendered="#{empty carePaymentsView.carePayments}">
+			<em>No divisions to display.</em>
+		</h:panelGroup>	
+				
+		<p:dataTable id="cpDataTable" value="#{carePaymentsView.carePayments}" var="cp"
+			filteredValue="#{carePaymentsView.filteredCarePayments}" 
+			styleClass="provider-split-table" sortBy="#{cp.totalSortColumn}" scrollHeight="540" scrollable="true">
+		
+			<p:column headerText="EIN" filterBy="#{cp.employeeUcsdId}">
+				<h:outputText value="#{cp.employeeUcsdId}" id="cpEmployeeUcsdId" rendered="#{cp.employeeUcsdId ne 0}"/>
+				<h:outputText value="N/A" rendered="#{cp.employeeUcsdId eq 0}"/>
+			</p:column>
+			
+			<p:column headerText="Employee Name" filterBy="#{cp.employeeName}">
+				<h:outputText value="#{cp.employeeName}" id="cpEmployeeName"/>
+			</p:column>
+						
+			<p:column headerText="Billing Type" filterBy="#{cp.billingType}">
+				<h:outputText value="#{cp.billingType}" id="cpBillingType" rendered="#{cp.billingType ne ''}"/>
+				<h:outputText value="N/A" rendered="#{cp.billingType eq ''}"/>
+			</p:column>
+			
+			<p:column headerText="CY Billing Type wRVU %">
+				<h:outputText value="#{cp.billingTypePerc}" id="cpCyBillingTypeWrvuPerc" rendered="#{not empty cp.billingTypePerc}"/>
+				<h:outputText value="N/A" rendered="#{empty cp.billingTypePerc}"/>
+			</p:column>
+			
+			<p:column headerText="Billing Area #" filterBy="#{cp.billingAreaId}">
+				<h:outputText value="#{cp.billingAreaId}" id="cpBillingAreaId" rendered="#{cp.billingAreaId ne 0}"/>
+				<h:outputText value="N/A" rendered="#{cp.billingAreaId eq 0}"/>
+			</p:column>			
+			
+			<p:column headerText="CY Billing Area wRVU %" >
+				<h:outputText value="#{cp.divisionCyWrvuPerc}" id="cpCyDivWrvuPerc" rendered="#{not empty cp.divisionCyWrvuPerc}"/>
+				<h:outputText value="N/A" rendered="#{empty cp.divisionCyWrvuPerc}"/>
+			</p:column>
+			
+			<p:column headerText="Rate" filterBy="#{cp.rate}">
+				<h:outputText value="#{cp.rate}" id="cpRate" rendered="#{not empty cp.rate}">
+					<f:convertNumber currencySymbol="$" maxFractionDigits="2" minFractionDigits="0" type="currency"/>				
+				</h:outputText>
+				<h:outputText value="N/A" rendered="#{empty cp.rate}"/>
+			</p:column>
+			
+			<p:column headerText="Proj wRVUs" filterBy="#{cp.projectedWrvus}">
+				<h:outputText value="#{cp.projectedWrvus}" id="cpProjWrvus" rendered="#{not empty cp.projectedWrvus}">
+					<f:convertNumber maxFractionDigits="2" minFractionDigits="0" />				
+				</h:outputText>
+				<h:outputText value="N/A" rendered="#{empty cp.projectedWrvus}"/>
+			</p:column>
+			
+			<p:column headerText="Proj Care Pmt" filterBy="#{cp.carePaymentAmount}">
+				<h:outputText value="#{cp.carePaymentAmount}" id="cpProjCarePayment" rendered="#{not empty cp.carePaymentAmount}">
+					<f:convertNumber currencySymbol="$" maxFractionDigits="2" minFractionDigits="0" type="currency"/>				
+				</h:outputText>
+				<h:outputText value="N/A" rendered="#{empty cp.carePaymentAmount}"/>
+			</p:column>		
+			
+			<p:summaryRow>
+				<p:column colspan="7">
+				
+				</p:column>
+				<p:column style="text-align:right">
+					<h:outputText value="TOTAL:" />
+				</p:column>
+				<p:column>
+					<h:outputText value="#{cp.totalCarePaymentAmount}" rendered="#{not empty cp.totalCarePaymentAmount}">
+						<f:convertNumber currencySymbol="$" maxFractionDigits="2" minFractionDigits="0" type="currency"/>
+					</h:outputText>
+					<h:outputText value="N/A" rendered="#{empty cp.totalCarePaymentAmount}"/>
+				</p:column>
+			</p:summaryRow>																			
+		</p:dataTable>
+		
+		<br/>
+		
+		<p:panelGrid columns="1" style="width: 50%">
+		<h:outputText value="CARE PAYMENT DIVISION SUMMARY" style="font-weight: bold"/>
+			<p:panelGrid columns="4">
+				
+				<h:outputText value="Total Projected Care Payment: " />
+				
+				<h:outputText value="#{carePaymentsView.carePaymentDivisionTotal.carePaymentAmount}" >
+					<f:convertNumber currencySymbol="$" maxFractionDigits="0" minFractionDigits="0" type="currency"/>
+				</h:outputText>	
+				
+					<h:commandLink>
+		                <p:graphicImage library="theme" name="img/excel.png" width="24"/>
+		                <p:dataExporter type="xls" target="cpDataTable" fileName="carePayments-#{divisionInfoBean.divisionId}" />					
+					</h:commandLink>
+								
+			</p:panelGrid>
+		</p:panelGrid>		
+	</h:form>
+</ui:composition>

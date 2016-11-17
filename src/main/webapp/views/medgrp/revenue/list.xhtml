@@ -1,0 +1,61 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:p="http://primefaces.org/ui" template="/layout/template.xhtml">
+
+	<ui:define name="body">
+
+		<h2>Medical Group Revenue - Your Divisions - #{medGrpRevenueView.medGrpRevenueDivisionCount} record(s)</h2>
+		<h:panelGroup rendered="#{empty medGrpRevenueView.medGrpRevenueDivisions}">
+			<em>You do not have access to any MedGrp divisions.</em>
+		</h:panelGroup>
+		
+		<h:form>
+		<p:dataTable widgetVar="revDivisionsTable" var="varDiv" filteredValue="#{medGrpRevenueView.filteredMedGrpRevenueDivisions}"
+			value="#{medGrpRevenueView.medGrpRevenueDivisions}"
+			rendered="#{not empty medGrpRevenueView.medGrpRevenueDivisions}"
+			emptyMessage="There are no divisions that match your search criteria."
+			paginator="true" rows="20" paginatorPosition="bottom"
+			style="width: 100%;">
+						
+			<p:column headerText="Dept Id" width="70" sortBy="#{varDiv.departmentId}" 
+				filterBy="#{varDiv.departmentId}" filterMatchMode="contains" filterStyle="width: 50px" filterMaxLength="4">
+				<h:outputText value="#{varDiv.departmentId}" />
+			</p:column>
+			
+			<p:column headerText="Dept Name" width="220" sortBy="#{varDiv.departmentName}" 
+				filterBy="#{varDiv.departmentName}" filterMatchMode="contains" filterMaxLength="50">
+	            <p:link outcome="department" value="#{varDiv.departmentName}" rendered="#{not varDiv.isAnesthesiology}">
+	            	<f:param name="departmentId" value="#{varDiv.departmentId}"/>
+	            </p:link>
+	            <h:outputText value="ANESTHESIOLOGY" rendered="#{varDiv.isAnesthesiology}" />
+			</p:column>
+			
+			<p:column headerText="Div Id" width="70" sortBy="#{varDiv.divisionId}" 
+				filterBy="#{varDiv.divisionId}" filterMatchMode="contains" filterStyle="width: 50px" filterMaxLength="4">
+				<h:outputText value="#{varDiv.divisionId}" />
+			</p:column>
+			
+			<p:column headerText="Div Name" width="220"  filterMatchMode="contains" sortBy="#{varDiv.divisionName}"
+				filterBy="#{varDiv.divisionName}">				
+	            <p:link outcome="worksheet" value="#{varDiv.divisionName}" rendered="#{not varDiv.isAnesthesiology}">
+	            	<f:param name="divisionId" value="#{varDiv.divisionId}"/>
+	            </p:link>
+	             <h:outputLink rendered="#{varDiv.isAnesthesiology}" value="#{medGrpRevenueView.anesthesiologyUrl}">
+	             	<h:outputText value="Anesthesiology" />
+	             	<f:param name="divisionId" value="1"/>
+	             	<f:param name="departmentId" value="316"/>
+	             	<f:param name="budgetYear" value="#{budgetMetadata.budgetCurrentYear}"/>
+	             </h:outputLink>
+			</p:column>
+			
+			<p:column headerText="Providers" width="70" sortBy="#{varDiv.providerCount}">
+				<h:outputText value="#{varDiv.providerCount}" rendered="#{not varDiv.isAnesthesiology}"/>
+				<h:outputText value="N/A" rendered="#{varDiv.isAnesthesiology}"/>
+			</p:column>			
+
+		</p:dataTable>
+		</h:form>
+	</ui:define>
+</ui:composition>

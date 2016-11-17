@@ -1,0 +1,640 @@
+html,body{ 
+	margin:0;
+	padding:0;
+}
+fieldset,img { 
+	border:0;
+}
+a{
+	text-decoration:none;
+}
+a:hover{
+	text-decoration:underline;
+}
+/*//////////////////////////////////////////////////// UTILS /*/
+.clr{
+	position:relative;
+	width:1px;
+	height:1px;
+	margin-left:-1px;
+	margin-bottom:-1px;
+	font-size:1px;
+	clear:both;
+	line-height:1px;
+}
+.left {
+	position:relative;
+	float:left;
+}
+.right{
+	float:right;
+}
+
+/*//////////////////////////*/
+#body{
+	color:#333;
+	background:url('http://som.ucsd.edu/images/bgBody.gif') repeat-x #e9e9d4;
+}
+.dropdown{
+	position:relative;
+	left:635px;
+	bottom:0;
+	width:238px;
+	height:27px;
+	list-style:none;
+	z-index:1000;
+	margin:0;
+	padding:0 0 0 10px;
+}
+ul.dropdown li{
+	background: transparent url('http://som.ucsd.edu/images/arrow_gray.gif') no-repeat scroll right center;	
+	font-size:1px;
+}
+ ul.dropdown:hover{
+	background: url('http://som.ucsd.edu/images/bkgd_nav_gold_gradient.png') repeat-y scroll top left;
+}
+
+ul.dropdown li a{
+	font:normal 11px Arial,Helvetica, sans-serif;
+	color:#666;
+	text-decoration:none;
+	line-height:27px;
+	
+}
+ul.dropdown li a:hover{
+	text-decoration:none;
+}
+ul.dropdown li ul{
+	display:none;
+}
+
+
+ul.dropdown li:hover ul{
+	list-style:none;
+	display:block;
+	position:absolute;
+	width:248px;
+	left:0px;
+	top:27px;
+	margin:0;
+	padding:0 0 4px 0;
+	background: url('http://som.ucsd.edu/images/bgDropMenuGold.png') no-repeat scroll left bottom;
+}
+ul.dropdown li:hover ul li{
+	position:relative;
+	padding:0 0 0 10px;
+	height:auto;
+	width:238px;
+	line-height:20px;
+	background-image:none;
+	background: url('http://som.ucsd.edu/images/bkgd_nav_gold_gradient.png') repeat-y scroll top left;
+}
+ul.dropdown li:hover ul li a{
+	color:#FFFFFF;
+	display:block;
+	width:235px;
+}
+ul.dropdown li ul li:hover{
+	background: url('http://som.ucsd.edu/images/bgTopNavHovGold.png') repeat-y scroll top left;
+	color:#FFFFFF;
+	text-decoration:none;
+}
+
+.wrapper{
+	position:relative;
+	padding: 5px 0px 0px 0px;
+	margin-left:auto;
+	margin-right:auto;
+	width:963px;
+}
+
+.wrapper2{
+	position:relative;
+	width:960px;
+	padding:0 0 0 0;
+	background:url('http://som.ucsd.edu/images/bgWrapper2.gif') repeat-y;
+}
+.topLinkRight{
+	display:block;
+	margin:0 25px 0 0;
+	padding:10px 14px 10px 0;
+	font:normal 11px Arial, Helvetica, sans-serif;
+	color:#666;
+	text-decoration:none;
+	background:url('http://som.ucsd.edu/images/bgTopLink.gif') right 12px no-repeat;
+}
+.headerWrapper{
+	position:relative;
+	width:960px;
+	background:url('http://som.ucsd.edu/images/bgHeader.png') repeat-x;
+}
+.topHeader{
+	padding: 0px 0 0 0;
+	position:relative;
+	width:962px;
+	height:9px;
+	background:url('http://som.ucsd.edu/images/bgTopHeader.gif') no-repeat;
+	line-height:1px;
+	font-size:1px;
+}
+.topMenu{
+	list-style:none;
+	padding:0 28px 0 0;
+	margin:0;
+}
+.topMenu li{
+	display:inline;
+	padding:0 7px;
+	border-left:1px solid #FFFFFF;
+	font:normal 11px Arial, Helvetica, sans-serif;
+}
+.topMenu li.first{
+	border:none;
+}
+.topMenu li a{
+	color:#FFFFFF;
+}
+.logo{
+	vertical-align: middle;
+	padding: 10px 0px 10px 10px; 
+}
+.tagline{
+	padding:20px 63px 0 63px;	
+}
+.userheader {
+	color:#FFFFFF;
+	font-family:'Times New Roman';
+	font-size:14px;
+	font-weight: bold;
+	text-align:right;
+	vertical-align: bottom;
+	padding: 0px 10px 10px 2px;
+}
+.userheader a,
+.userheader a:visited { text-decoration: underline; color: #FFFFFF;}
+.appheader {
+	color:#FFFFFF;
+	font-family:'Times New Roman';
+	font-size:22px;
+	text-align:left;
+	vertical-align: middle;
+	text-transform:uppercase;
+	padding: 0px 0px 0px 0px; 
+}
+.appheader strong  
+{ 
+font-size:32px;
+font-weight: normal;
+}
+/*/////////////////////// smaller width TOP NAVIGATION*/
+.smallTopNav {
+	position:relative;
+	left:0;
+	bottom:0;
+	width:100%;
+	height:34px;
+	list-style:none;
+	z-index:3;
+	margin:0;
+	padding:0;
+	background:url('http://som.ucsd.edu/images/bgTopNav.png') repeat-x #2B3376;
+}
+.smallTopNav li {
+	position:relative;
+	float:left;
+	height:34px;
+	/* width:100px; */
+	padding:1px 8px 0px 8px;
+	background:url('http://som.ucsd.edu/images/bgTopNav.png') repeat-x;
+	border-left:1px solid #c7ccd9;
+	text-align:center;
+	line-height:30px;
+	margin:0;
+}
+.smallTopNav li:hover ul li a {
+	display:block;
+	position:relative;
+	padding:5px 0 5px 10px;
+	font-size:12px;
+	text-transform:none;
+	text-align:left;
+}
+/*///////////////////////TOP NAVIGATION*/
+.topNav {
+	position:relative;
+	left:0;
+	bottom:0;
+	width:100%;
+	height:34px;
+	list-style:none;
+	z-index:3;
+	margin:0;
+	padding:0;
+	background:url('http://som.ucsd.edu/images/bgTopNav.png') repeat-x #2B3376;
+	text-transform:uppercase;
+	/* border-bottom:1px solid #c2d2e2; */
+	/* border-top:1px solid #c2d2e2; */
+}
+.topNav li {
+	position:relative;
+	float:left;
+	height:34px;
+	width:143px;
+	padding:0;
+	background:url('http://som.ucsd.edu/images/bgTopNav.png') repeat-x;
+	border-left:1px solid #c7ccd9;
+	text-align:center;
+	line-height:30px;
+	margin:0;
+}
+.topNav li.first{
+	border:none;
+	width:143px;
+}
+.topNav li.last{
+
+}
+.topNav li a, .smallTopNav li a  {
+	font:bold 11px Arial,Helvetica, sans-serif;
+	color:#FFFFFF;
+	text-decoration:none;
+	line-height:14px;
+}
+.topNav li ul, .smallTopNav li ul {
+	display:none;
+}
+.topNav li:hover, .smallTopNav li:hover {
+	background:url('http://som.ucsd.edu/images/bgTopNavHov2.gif') repeat-y;
+}
+.topNav li:hover a{
+	color:#FFFFFF;
+}
+.topNav li:hover ul, .smallTopNav li:hover ul {
+	list-style:none;
+	display:block;
+	position:absolute;
+	width:234px;
+	left:0px;
+	top:34px;
+	background:url('http://som.ucsd.edu/images/bgTopNavHov2.gif') repeat-y;
+	padding:0;
+	margin:0;
+}
+.topNav li:hover ul li, .smallTopNav li:hover ul li {
+	position:relative;
+	padding:0;
+	height:auto;
+	width:100%;
+	line-height:14px;
+	background:url('http://som.ucsd.edu/images/bgTopNavHov2.gif') repeat-y;
+}
+
+.topNav li:hover ul li a {
+	display:block;
+	position:relative;
+	padding:5px 0 5px 10px;
+	color:#FFFFFF;
+	font-size:12px;
+	text-transform:none;
+	text-align:left;
+	width:224px;
+}
+.topNav li ul li a:hover{
+	background-color:#00245D;
+	color:#FFFFFF;
+	text-decoration:none;
+}
+
+/* mikes additions, with edwards modifications */
+
+.topNav td {
+	height: 34px;
+}
+
+.topNav div.rich-label-text-decor:hover,
+.topNav div.rich-ddmenu-label:hover {
+	border: 0;
+	color: #FFFFFF;
+	background: #1C2B5B;
+}
+
+.topNav .rich-menu-item-label,
+.topNav .dr-menu-icon,
+.topNav .rich-menu-item-icon,
+.topNav .rich-label-text-decor {}
+
+.topNav .rich-toolbar-item,
+.topNav td a,
+.topNav div.rich-menu-item-enabled a {
+	color: #FFFFFF;
+}
+
+.topNav div.rich-separator {
+	color: #c7ccd9;
+}
+
+.dropDownItemClass {
+	background: url('http://som.ucsd.edu/images/bgTopNavHov2.gif') repeat-y; 
+	border-width: 0;
+	padding: 2px 36px 2px 2px;
+	color: #FFFFFF;
+}
+.dropDownMenuStyleClass { 
+/*	background: url('http://som.ucsd.edu/images/bgTopNavHov2.gif') repeat-y; */
+	position:relative;
+	padding:0;
+	height:auto;
+	width:100%;
+	text-decoration: none;
+}
+/******************************CONTENT*/
+.wrapperContent2{
+	position:relative;
+	background:url('http://som.ucsd.edu/images/bgWrapperCt2.gif') repeat-y;
+}
+.wrapperContent{
+	padding:0;
+	background: #FFFFFF url('http://som.ucsd.edu/images/column.png') -8px top no-repeat;
+	position:relative;
+	width:960px;
+	z-index:1;
+}
+.pageContent a, a:visited{
+	color:#055d89;
+}
+
+/*///////////////////////Display*/
+.display{
+	width:675px;
+	padding:0 30px 5px 50px;
+	font:12px/1.231 arial,helvetica,clean,sans-serif;	
+}
+.pageContentFull {
+	width: 98%;
+	background: #FFFFFF;
+	padding: 5px 5px 5px 10px;
+	border-right: solid 2px #D8D8C7;
+	border-left: solid 2px #D8D8C7;
+	font:12px/1.231 arial,helvetica,clean,sans-serif;
+	min-height:300px;	
+}
+.display a:link, .display a:visited {
+	color: #055d89;
+}
+h1{
+	color:#00245D;
+	font:normal 24px Times New Roman, arial, sans-serif;
+	font-variant:small-caps;
+	padding:18px 0;
+	margin:0;
+}
+h2{
+	color:#00245D;
+	font:normal 18px Times New Roman, arial, sans-serif;
+	/* font-variant:small-caps; */
+	margin:0;
+}
+h3{
+	color:#00245D;
+	font:bold 12px Arial, Helvetica, sans-serif;
+}
+.pageContent{
+	position:relative;
+	font:normal 12px Arial, Helvetica, sans-serif;
+	line-height:24px;
+}
+.pageContent p{
+	padding:6px 0;
+	margin:0;
+
+}
+.pageContent ul, .display ul{
+	padding: 0 0 0 20px;
+	margin:0;
+	list-style:none;
+}
+.pageContent ul li{
+	padding:0 0 0 20px;
+	margin:0;
+	background:url('http://som.ucsd.edu/images/bullet.gif') left center no-repeat;
+}
+.pageContent a{
+	text-decoration:none;
+}
+.pageContent a:hover{
+	text-decoration:underline;
+}
+/*////////////////////FOOTER*/
+.footerContent{
+	position:relative;
+	width:963px;
+	height:8px;
+	font-size:1px;
+	background:url('http://som.ucsd.edu/images/bgFooterContent.gif') left bottom no-repeat;
+	line-height:1px;
+}
+.footer{
+	clear: both;
+	position:relative;
+	font:normal 12px Arial, Helvetica, sans-serif;
+	text-align:center;
+	color:#666;
+}
+.address{
+	font-weight:bold;
+	font-size:12px;
+	padding:10px 0 5px 0;
+	text-align:center;
+	margin:0;
+}
+.address li{
+	display:inline;
+	padding:0 14px 0 18px;
+	background:url('http://som.ucsd.edu/images/bgAddress.gif') 2px 4px no-repeat;
+}
+.address li.first{
+	background-image:none;
+}
+.footerNav{
+	list-style:none;
+	text-align:center;
+	width:auto;
+	margin:0 0 7px 0;
+}
+.footerNav li{
+	display:inline;
+	font:normal 12px Arial, Helvetica, sans-serif;
+	border-left:1px solid #666;
+	padding:0 6px;
+}
+.footerNav li.first{
+	border:none;
+}
+.footerNav li a, .footerNav2 li a{
+	color:#666;
+	text-decoration:none;
+}
+.footerNav li a:hover, .footerNav2 li a:hover{
+	text-decoration:underline;
+}
+.footerLogo{
+	position:relative;
+	width:900px;
+	margin-left:auto;
+	margin-right:auto;
+	border-top:1px solid #FFFFFF;
+	margin-top:6px;
+}
+.logoFooter{
+	padding:5px 0 6px 0;
+}
+.copyright{
+	font:normal 12px Arial, Helvetica, sans-serif;
+
+}
+.copyright p{
+	margin:0;
+}
+.footerNav2{
+	list-style:none;
+	text-align:center;
+	padding:5px 0;
+	margin:0;
+}
+.footerNav2 li{
+	display:inline;
+	border-left:1px solid #666;
+	padding:0 5px;
+}
+.footerNav2 li.first{
+	border:none;
+}
+.articleLayout .header{
+	border:none;
+}
+/* for tables, just use <table class="styled"> */
+/* .report td, .report th {padding-left: 5px;} */
+.report th {background:#DDD;font-weight:bold; color: #000000;}
+.report tr.even th {background:#BBB;}
+.report tr.even td {background:#E9F3FD;}
+
+.styled {margin-bottom:1em;border-top:1px solid #DDD;}
+.styled th, .styled td {vertical-align:top;padding:2px 2px 2px 5px;}
+.styled th {background:#DDD;font-weight:bold;}
+.styled td {border-bottom:1px solid #DDD;}
+.styled tr.even th {background:#BBB;}
+.styled tr.even td {background:#E9F3FD;}
+/* for HRIS tables, just use <table class="hris_table"> */
+.rich-calendar-month {
+	color:#11808A;
+	background:#E9F3FD;
+}
+.hris_table {border: none; padding: 0px 0px 0px 0px;}
+/* the 'not' directive does not work in IE, big surprise */
+/* .hris_table th, .hris_table td:not(.rich-calendar-cell) {text-align: left;vertical-align:middle; background:#E9F3FD;} */
+.hris_table th, .hris_table td {text-align: left;vertical-align:middle; background:#E9F3FD;}
+.hris_table th {background:#DDD;font-weight:bold;}
+.hris_table label {padding:0; margin:0; width: 100%;}
+.hris_table textarea {padding:0; margin:0; width: 100%; height: 14px;}
+.hris_table input, .hris_table select {padding:0; margin:0;font-size:smaller;}
+/* for HRIS sub tables, just use <table class="hris_sub_table"> */
+.hris_sub_table {border: none; padding: 0px;table-layout:fixed;}
+.hris_sub_table th, .hris_sub_table td {text-align: right;vertical-align:bottom;padding:0px 3px 0px 0px; width: 15px;overflow:hidden;}
+.hris_sub_table th {background:#DDD;font-weight:bold;}
+.hris_sub_table td {border-bottom:1px solid #DDD;}
+.hris_sub_table label {padding: 0; width: 100%;}
+.hris_sub_table tr.even th {background:#BBB;}
+.hris_sub_table tr.even td {background:#E9F3FD;}
+/* for end date report sub tables */
+/* enddate style */
+.enddate table {border: none; padding: 0px 0px 0px 0px;}
+.enddate td, .enddate th {font-size: 90%; padding: 1px 0 1px 1px;}
+.enddate th {background:#DDD;font-weight:bold;}
+.enddate tr.even td {background:#E9F3FD;}
+
+
+/* .hris_table td .name {display: block;position:relative;float:inherit;width:100%;}
+.hris_table td .value {text-align: left;vertical-align: bottom;padding:0;}
+*/
+/* for HRIS sub tables, just use <table class="hris_sub_table"> */
+.enddate_sub_table {border: none; padding: 0px;}
+.enddate_sub_table td {
+	font-size: 90%;
+	padding:0px 0px 0px 0px; 
+	}
+
+.nav_button:hover {
+	background:url('/images/pressed.png');
+	border-top: none;
+	border-left: none;
+	border-bottom: solid 1px #71E1FF;
+	border-right: solid 2px #71e1ff;
+	padding: 2px 8px;
+}
+.nav_button {
+	background:url('/images/up.png');
+	border-top: none;
+	border-left: none;	
+	border-bottom: solid 1px #71E1FF;
+	border-right: solid 2px #71e1ff;
+	padding: 2px 8px;
+}
+.right_column {
+	text-align: right; 
+}
+
+.lightbg { background: #BBB; }
+.darkbg { background: #E9F3FD; }
+.inplace {  background: #FFCC99;}
+.inplaceError {  color: #E01B1B; border: 5px solid #E01B1B !important;}
+.savedplace {  background: #00FF00;}
+
+.searchMenu {color: #FFFFFF; }
+.searchMenu a:hover {background: #FFFFFF;}
+.hdrRight {
+    color: #FFFFFF;
+    float: right;
+}
+
+.ui-datatable-even {
+/*    background: #E9F3FD; */
+    background: #FFFFFF;
+}
+
+.apdbTh {
+	font-weight: bolder;
+    margin: 5px 5px 5px 5px;
+}
+.apdbCell {
+	display:inline;
+    margin: 5px 5px 5px 2px;
+}
+
+ul.ui-menu-child {
+    white-space: nowrap;
+    width: auto !important;
+    min-width: 250px;
+}
+
+.ui-menu-parent {
+	min-width: 100px;
+}
+
+.ui-menuitem {
+	min-width: 100px;
+}
+
+
+.numbers {
+	text-align: right;
+	margin-right: 5px;
+}
+
+.numbers td {
+	text-align: right;
+	padding: 2px 5px 2px 5px;
+}
+
+.numbers label {
+	text-align: center;
+}

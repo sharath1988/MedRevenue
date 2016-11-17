@@ -1,0 +1,209 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:p="http://primefaces.org/ui"
+	template="/layout/template_mri.xhtml">
+
+	<ui:define name="metadata">
+		<f:metadata>
+			<f:viewAction action="#{ljmriTrvuView.load}" />
+		</f:metadata>
+	</ui:define>
+
+	<ui:define name="body">
+
+
+		<p:growl id="saveStatus" globalOnly="true" showDetail="true" />
+
+		<h2>
+			<h:outputText value="LJMRI TRVU Admin Module" />
+		</h2>
+		<h:form id="ljmriTrvuForm" styleClass="other-income">
+			<p:messages id="messages" severity="error,fatal" autoUpdate="true" />
+
+
+			<p:panel header="Add New Outside Biller Data">
+				<p:panelGrid>
+
+					<f:facet name="header">
+						<p:row>
+							<p:column>Date</p:column>
+							<p:column>Division</p:column>
+							<p:column>CAP Type</p:column>
+							<p:column>Charges</p:column>
+							<p:column>Collections</p:column>
+							<p:column>tRVUS</p:column>
+							<p:column>wRVUS</p:column>
+							<p:column>Action</p:column>
+						</p:row>
+					</f:facet>
+
+					<p:row>
+
+						<p:column>
+							<p:calendar id="newDate" pattern="MM/yyyy"
+								value="#{ljmriTrvuView.newRow.date}" size="8" />
+						</p:column>
+
+						<p:column>
+							<p:selectOneMenu id="divisionSelect"
+								value="#{ljmriTrvuView.newRow.meta}"
+								converter="#{ljmriTrvuMetaConverter}" required="true"
+								style="font-size:smaller;">
+								<!-- <f:selectItem itemLabel="Select Country" noSelectionOption="true" /> -->
+								<f:selectItems value="#{ljmriTrvuView.metaList}" var="meta"
+									itemValue="#{meta}" itemLabel="#{meta.toString()}" />
+							</p:selectOneMenu>
+						</p:column>
+
+						<p:column>
+
+							<p:selectOneMenu id="newCapType"
+								value="#{ljmriTrvuView.newRow.capType}" required="true"
+								style="font-size:smaller;">
+								<f:selectItem itemLabel="Select CAP Type"
+									noSelectionOption="true" />
+								<f:selectItem itemLabel="COMMERCIAL" itemValue="COMMERCIAL" />
+								<f:selectItem itemLabel="SENIOR" itemValue="SENIOR" />
+								<f:selectItem itemLabel="UHMO" itemValue="UHMO" />
+							</p:selectOneMenu>
+						</p:column>
+
+						<p:column>
+							<p:inputText id="newCharges" style="width: 75px" required="true"
+								value="#{ljmriTrvuView.newRow.charges}">
+								<f:convertNumber type="currency" maxFractionDigits="2"
+									currencySymbol="" />
+							</p:inputText>
+						</p:column>
+
+						<p:column>
+							<p:inputText id="newFfs" style="width: 75px" required="true"
+								value="#{ljmriTrvuView.newRow.FFSPayments}">
+								<f:convertNumber type="currency" maxFractionDigits="2"
+									currencySymbol="" />
+							</p:inputText>
+						</p:column>
+
+						<p:column>
+							<p:inputText id="newTrvus" style="width: 75px" required="true"
+								value="#{ljmriTrvuView.newRow.tRVU}">
+								<f:convertNumber type="currency" maxFractionDigits="2"
+									currencySymbol="" />
+							</p:inputText>
+						</p:column>
+
+						<p:column>
+							<p:inputText id="newWrvus" style="width: 75px" required="true"
+								value="#{ljmriTrvuView.newRow.wRVU}">
+								<f:convertNumber type="currency" maxFractionDigits="2"
+									currencySymbol="" />
+							</p:inputText>
+						</p:column>
+
+						<p:column>
+
+							<p:commandButton id="addRec" value="Add"
+								action="#{ljmriTrvuView.addNew_onClick}"
+								update=":ljmriTrvuForm,:ljmriTrvuForm:messages,:saveStatus" />
+						</p:column>
+					</p:row>
+				</p:panelGrid>
+			</p:panel>
+			<br />
+			<p:dataTable value="#{ljmriTrvuView.list}" var="lj" paginator="true"
+				id="ljTable" rows="8" rowsPerPageTemplate="10,15,25,50,100"
+				paginatorPosition="bottom">
+
+				<p:column headerText="Date">
+
+					<h:outputText value="#{lj.date}">
+						<f:convertDateTime pattern="MM/dd/yyyy" />
+					</h:outputText>
+				</p:column>
+
+				<!-- 				<p:column headerText="Major Group Id" width="15px">
+					<h:outputText value="#{lj.somMajorGroupId}" />
+				</p:column> -->
+
+				<p:column headerText="Department">
+					<h:outputText value="#{lj.department}" />
+				</p:column>
+
+				<p:column headerText="Index">
+					<h:outputText value="#{lj.indx}" />
+				</p:column>
+
+				<p:column headerText="Division">
+					<h:outputText value="#{lj.division}" id="idDivision"/>
+					<p:tooltip for="idDivision" trackMouse="true">
+						<h:outputText
+							value="DivisionID: #{lj.divisionId}" />
+					</p:tooltip>
+				</p:column>
+
+				<p:column headerText="CAP Type">
+					<h:outputText value="#{lj.capType}" />
+				</p:column>
+
+
+				<p:column headerText="Charges">
+					<p:inputText id="charges" style="width: 75px" required="true"
+						value="#{lj.charges}" disabled="#{lj.isDisabled()}"
+						onkeypress="if (event.keyCode == 13) {event.preventDefault(); blur(); return false; }">
+						<p:ajax event="change" listener="#{ljmriTrvuView.update_onBlur}"
+							update=":ljmriTrvuForm:messages,charges,:saveStatus" />
+						<f:convertNumber type="currency" maxFractionDigits="2"
+							currencySymbol="" />
+						<f:attribute name="lj" value="#{lj}" />
+					</p:inputText>
+				</p:column>
+
+				<p:column headerText="Collections">
+					<p:inputText id="ffs" style="width: 75px" required="true"
+						value="#{lj.FFSPayments}" disabled="#{lj.isDisabled()}"
+						onkeypress="if (event.keyCode == 13) {event.preventDefault(); blur(); return false; }">
+						<p:ajax event="change" listener="#{ljmriTrvuView.update_onBlur}"
+							update=":ljmriTrvuForm:messages,charges,:saveStatus" />
+						<f:convertNumber type="currency" maxFractionDigits="2"
+							currencySymbol="" />
+						<f:attribute name="lj" value="#{lj}" />
+					</p:inputText>
+				</p:column>
+
+				<p:column headerText="tRVUs">
+					<p:inputText id="trvus" style="width: 75px" required="true"
+						value="#{lj.tRVU}" disabled="#{lj.isDisabled()}"
+						onkeypress="if (event.keyCode == 13) {event.preventDefault(); blur(); return false; }">
+						<p:ajax event="change" listener="#{ljmriTrvuView.update_onBlur}"
+							update=":ljmriTrvuForm:messages,trvus,:saveStatus" />
+						<f:convertNumber type="currency" maxFractionDigits="2"
+							currencySymbol="" />
+						<f:attribute name="lj" value="#{lj}" />
+					</p:inputText>
+				</p:column>
+
+				<p:column headerText="wRVUs">
+					<p:inputText id="wrvus" style="width: 75px" required="true"
+						value="#{lj.wRVU}" disabled="#{lj.isDisabled()}"
+						onkeypress="if (event.keyCode == 13) {event.preventDefault(); blur(); return false; }">
+						<p:ajax event="change" listener="#{ljmriTrvuView.update_onBlur}"
+							update=":ljmriTrvuForm:messages,wrvus,:saveStatus" />
+						<f:convertNumber type="currency" maxFractionDigits="2"
+							currencySymbol="" />
+						<f:attribute name="lj" value="#{lj}" />
+					</p:inputText>
+				</p:column>
+
+
+
+			</p:dataTable>
+
+
+
+		</h:form>
+
+
+	</ui:define>
+</ui:composition>

@@ -1,0 +1,82 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:p="http://primefaces.org/ui">
+		
+	<h:form id="cpForm">
+	
+		<h2>Care Payments By Billing Area for #{budgetMetadata.currentBudgetYearLabel}</h2>
+		
+		<h:panelGroup rendered="#{empty carePaymentsView.carePayments}">
+			<em>No divisions to display.</em>
+		</h:panelGroup>	
+				
+		<p:dataTable id="cpDataTable" value="#{carePaymentsView.carePayments}" var="cp"
+			filteredValue="#{carePaymentsView.filteredCarePayments}" 
+			styleClass="provider-split-table" sortBy="#{cp.billingAreaId}">
+		
+			<p:column headerText="Billing Area Id" filterBy="#{cp.billingAreaId}" sortBy="#{cp.billingAreaId}">
+				<h:outputText value="#{cp.billingAreaId}" id="cpBillingAreaId" rendered="#{cp.billingAreaId ne 0}"/>
+				<h:outputText value="N/A" rendered="#{cp.billingAreaId eq 0}"/>
+			</p:column>
+			
+			<p:column headerText="Billing Area Name" filterBy="#{cp.employeeName}" sortBy="#{cp.employeeName}" width="300">
+				<h:outputText value="#{cp.employeeName}" id="cpEmployeeName"/>
+			</p:column>
+												
+			<p:column headerText="Proj wRVUs" sortBy="#{cp.projectedWrvus}">
+				<h:outputText value="#{cp.projectedWrvus}" id="cpProjWrvus" rendered="#{not empty cp.projectedWrvus}">
+					<f:convertNumber maxFractionDigits="2" minFractionDigits="0"/>				
+				</h:outputText>
+				<h:outputText value="N/A" rendered="#{empty cp.projectedWrvus}"/>
+			</p:column>
+			
+			<p:column headerText="wRVU Rate" sortBy="#{cp.rate}">
+				<h:outputText value="#{cp.rate}" id="cpRate" rendered="#{not empty cp.rate}">
+					<f:convertNumber currencySymbol="$" maxFractionDigits="2" minFractionDigits="0" type="currency"/>				
+				</h:outputText>
+				<h:outputText value="N/A" rendered="#{empty cp.rate}"/>
+			</p:column>
+			
+			<p:column headerText="Proj ASA Units" sortBy="#{cp.projectedAsaUnits}">
+				<h:outputText value="#{cp.projectedAsaUnits}" id="cpProjAsaUnits" rendered="#{not empty cp.projectedAsaUnits}">
+					<f:convertNumber maxFractionDigits="2" minFractionDigits="0" />				
+				</h:outputText>
+				<h:outputText value="N/A" rendered="#{empty cp.projectedAsaUnits}"/>
+			</p:column>
+			
+			<p:column headerText="ASA Rate" sortBy="#{cp.asaRate}">
+				<h:outputText value="#{cp.asaRate}" id="cpAsaRate" rendered="#{not empty cp.asaRate}">
+					<f:convertNumber currencySymbol="$" maxFractionDigits="2" minFractionDigits="0" type="currency"/>				
+				</h:outputText>
+				<h:outputText value="N/A" rendered="#{empty cp.asaRate}"/>
+			</p:column>									
+			
+			<p:column sortBy="#{cp.carePaymentAmount}">
+				<f:facet name="header">
+					<h:outputText value="Proj Care Pmt" style="cursor: help" title="Proj Care Pmt = (Proj wRVUs * wRVU rate) + (Proj ASA Units * ASA Rate)"/>
+				</f:facet>
+				<h:outputText value="#{cp.carePaymentAmount}" id="cpProjCarePayment" rendered="#{not empty cp.carePaymentAmount}">
+					<f:convertNumber currencySymbol="$" maxFractionDigits="2" minFractionDigits="0" type="currency"/>				
+				</h:outputText>
+				<h:outputText value="N/A" rendered="#{empty cp.carePaymentAmount}"/>
+			</p:column>
+		</p:dataTable>
+		
+		<br/>
+		
+		<p:panelGrid columns="1" style="width: 50%">
+		<h:outputText value="CARE PAYMENT DIVISION SUMMARY" style="font-weight: bold"/>
+			<p:panelGrid columns="2">
+				
+				<h:outputText value="Total Projected Care Payment: " />
+				
+				<h:outputText value="#{carePaymentsView.carePaymentDivisionTotal.carePaymentAmount}" >
+					<f:convertNumber currencySymbol="$" maxFractionDigits="0" minFractionDigits="0" type="currency"/>
+				</h:outputText>	
+				
+			</p:panelGrid>
+		</p:panelGrid>		
+	</h:form>
+</ui:composition>

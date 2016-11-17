@@ -1,0 +1,16 @@
+<!DOCTYPE etl SYSTEM "http://scriptella.javaforge.com/dtd/etl.dtd">
+<etl>
+    <description>Copies cc_parameters and znb_parameters from mgStaging schema from SQL Server prod to Target ENV</description>
+    <properties>
+		<!-- <include href="/etc/scriptella/connections.dev.properties"/> -->
+		<include href="/etc/scriptella/connections.qa.properties"/>
+		<!-- <include href="/etc/scriptella/connections.prod.properties"/> -->
+    </properties>
+    
+       <connection id="mysql" driver="$mysql.driver" url="$mysql.url" user="$mysql.user" password="$mysql.password"/>
+
+		<script connection-id="mysql">
+			<include href="MV_ADJ_PERC_BY_DIV.sql"/>
+		</script>
+		
+</etl>

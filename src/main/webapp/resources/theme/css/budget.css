@@ -1,0 +1,182 @@
+/* VCHS Budget styles */
+h2 {
+	font:normal 18px Arial, sans-serif;
+	margin:0;
+}
+
+input.highlight {
+	background: #F8E0E0 !important;
+}
+
+.ui-sortable-column-icon {
+   float: bottom !important;
+   position: relative !important;
+}
+
+.revenue-worksheet-cell {
+	text-align: right
+}
+
+.current-year {
+	color: #0000FF;
+	text-align: center;
+}
+
+.current-year-right {
+	color: #0000FF;
+	text-align: right;
+}
+
+.headerText {
+	font-weight: bold;
+}
+
+.revenue-worksheet-table .ui-datatable-scrollable-body {
+	overflow-y: scroll;
+	height: auto !important;
+	max-height: 540px;
+}
+
+tr.pickable {
+	background: Lavender !important;
+}
+tr.pickable * {
+	cursor: pointer !important;
+}
+
+.revenue-worksheet-table {width: 100%}
+.revenue-worksheet-table tr td {text-align: right}
+.revenue-worksheet-table tr td.provider-col {text-align: left} 
+.provider-split-table {width: 100%}
+.provider-split-table tr td {text-align: right}
+.provider-split-table tr td.split-provider-col {width: 300px; text-align: left}
+
+.revenue-worksheet-table .prior-year {
+	color: Green;
+}
+
+.revenue-worksheet-table .rolling-12-months {
+	color: #D17600;
+}
+
+.revenue-worksheet-mode div:first-child.ui-state-active {
+	background-color: Green;
+	background: linear-gradient(LightGreen, Green);
+}
+
+.revenue-worksheet-mode div:nth-child(2).ui-state-active {
+	background-color: #D17600;
+	background: linear-gradient(Orange, #D17600);
+}
+
+.revenue-worksheet-table .ui-datatable-scrollable-body::-webkit-scrollbar-thumb {
+	border-color: #9d9d9d;
+	border-radius: 0px;
+}
+
+.revenue-worksheet-toolbar {
+	padding: 0.5em;
+	overflow: hidden;
+}
+
+.revenue-worksheet-toolbar label {
+	color: black;
+	margin-right: 5px;
+	vertical-align: middle;
+}
+
+.revenue-worksheet-toolbar .column-togglers {
+	float: right;
+}
+
+.excel-button {
+	display: inline-block;
+	border-radius: 4px;
+	padding: 1px;
+}
+
+.revenue-worksheet-toolbar .utilities .excel-button {
+	margin-right: 0.4em;
+}
+
+.excel-button img {
+	height: 24px;
+}
+
+.revenue-worksheet-toolbar * {
+	vertical-align: top;
+}
+
+.revenue-worksheet-toolbar .utilities {
+	float: left;
+}
+
+.revenue-worksheet-toolbar .site-of-service {
+	margin-right: 25px;
+}
+
+span.change {
+	color: red;
+}
+
+div.add-provider-section {
+	margin-bottom: 5px;
+	margin-top: 5px;
+}
+div.add-provider-section div.new-provider-description {
+	margin: 5px;
+}
+div.add-provider-overlay table td {
+	padding: 5px;
+}
+div.add-provider-overlay label {
+	font-weight: bold;
+}
+div.add-provider-overlay button {
+	margin-left: 5px;
+	margin-top: 5px;
+}
+div.remove-provider-overlay div.section {
+	margin-top: 5px;
+	margin-bottom: 5px;
+}
+div.remove-provider-message {
+	display: none;
+	vertical-align: middle;
+	line-height: 42px;
+}
+form.apply-percentage {
+	display: inline;
+	margin-bottom: 0;
+}
+form.apply-percentage > * {
+	margin-right: 10px;
+}
+form.apply-percentage > button {
+	margin-right: 5px;
+}
+form.other-income h2 {
+	margin-bottom: 10px;
+}
+form.other-income tbody td {
+	padding-bottom: 10px;
+}
+form.other-income label {
+	margin-right: 20px;
+}
+form.other-income .tip {
+	padding-left: 1em;
+}
+
+#provider\:newProvider_panel .ui-lightbox-content, #provider\:newProvider_panel .ui-lightbox-content iframe {
+	height: 543px !important;
+}
+
+.exception-message {
+	margin-bottom: 1em;
+	word-wrap: break-word;
+}
+pre.stack-trace {
+	height: 30em;
+	overflow: scroll;
+}

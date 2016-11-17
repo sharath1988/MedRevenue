@@ -1,0 +1,146 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:p="http://primefaces.org/ui"
+	template="/layout/template_mri.xhtml">
+
+	<ui:define name="metadata">
+		<f:metadata>
+			<f:viewAction action="#{ljmriTrvuView.ytd}" />
+		</f:metadata>
+	</ui:define>
+
+	<ui:define name="body">
+
+
+		<p:growl id="saveStatus" globalOnly="true" showDetail="true" />
+
+		<p:panel header="La Jolla MRI TRVU YTD">
+
+			<ui:fragment rendered="#{empty ljmriTrvuView.list}">
+				<h:outputText
+					value="There are no records for fiscal year starting: " />
+				<h:outputText value="#{ljmriTrvuView.fiscalStart}">
+					<f:convertDateTime dateStyle="long" />
+				</h:outputText>
+			</ui:fragment>
+
+			<ui:fragment rendered="#{not empty ljmriTrvuView.list}">
+				<h:outputText
+					value="Found: #{ljmriTrvuView.size} records since fiscal year: " />
+				<h:outputText value="#{ljmriTrvuView.fiscalStart}">
+					<f:convertDateTime dateStyle="long" />
+				</h:outputText>
+			</ui:fragment>
+
+			<h:form id="ljmriTrvuForm" styleClass="other-income"
+				rendered="#{not empty ljmriTrvuView.list}">
+				<p:messages id="messages" severity="error,fatal" autoUpdate="true" />
+
+				<p:dataTable value="#{ljmriTrvuView.list}" var="lj" id="ljTable">
+
+					<p:column headerText="Date" sortBy="#{lj.date}">
+						<h:outputText value="#{lj.date}">
+							<f:convertDateTime pattern="MM/dd/yyyy" />
+						</h:outputText>
+					</p:column>
+
+					<p:column headerText="Major Group" exportable="true"
+						visible="false" sortBy="#{lj.somMajorGroup}">
+						<h:outputText value="#{lj.somMajorGroup}" />
+					</p:column>
+
+					<p:column headerText="Department" sortBy="#{lj.department}">
+						<h:outputText value="#{lj.department}" />
+					</p:column>
+
+					<p:column headerText="Division Id" exportable="true"
+					visible="false"
+						sortBy="#{lj.divisionId}">
+						<h:outputText value="#{lj.divisionId}"/>
+					</p:column>
+
+					<p:column headerText="Index" sortBy="#{lj.indx}">
+						<h:outputText value="#{lj.indx}" />
+					</p:column>
+
+					<p:column headerText="Division" sortBy="#{lj.division}">
+						<h:outputText value="#{lj.division}" id="idDivision"/>
+						<p:tooltip for="idDivision" trackMouse="true">
+							<h:outputText value="DivisionID: #{lj.divisionId}" />
+						</p:tooltip>
+						
+					</p:column>
+
+					<p:column headerText="CAP Type" sortBy="#{lj.capType}">
+						<h:outputText value="#{lj.capType}" />
+					</p:column>
+
+					<p:column styleClass="numbers" headerText="Charges"
+						sortBy="#{lj.charges}">
+						<h:outputText value="#{lj.charges}">
+							<f:convertNumber type="currency" />
+						</h:outputText>
+					</p:column>
+
+					<p:column styleClass="numbers" headerText="Collections"
+						sortBy="#{lj.FFSPayments}">
+						<h:outputText value="#{lj.FFSPayments}">
+							<f:convertNumber type="currency" />
+						</h:outputText>
+					</p:column>
+
+					<p:column styleClass="numbers" headerText="tRVUs"
+						sortBy="#{lj.tRVU}">
+						<h:outputText value="#{lj.tRVU}">
+							<f:convertNumber type="currency" />
+						</h:outputText>
+					</p:column>
+
+					<p:column styleClass="numbers" headerText="wRVUs"
+						sortBy="#{lj.wRVU}">
+						<h:outputText value="#{lj.wRVU}">
+							<f:convertNumber type="currency" />
+						</h:outputText>
+					</p:column>
+
+					<p:columnGroup type="footer">
+						<p:row>
+							<p:column colspan="5" style="text-align:right"
+								footerText="Totals:" />
+
+							<p:column styleClass="numbers" style="font-size:smaller;"
+								footerText="$#{ljmriTrvuView.getCurrency(ljmriTrvuView.totalCharges)}" />
+
+							<p:column styleClass="numbers" style="font-size:smaller;"
+								footerText="$#{ljmriTrvuView.getCurrency(ljmriTrvuView.totalCollections)}" />
+
+							<p:column styleClass="numbers" style="font-size:smaller;"
+								footerText="$#{ljmriTrvuView.getCurrency(ljmriTrvuView.total_tRVUS)}" />
+
+							<p:column styleClass="numbers" style="font-size:smaller;"
+								footerText="$#{ljmriTrvuView.getCurrency(ljmriTrvuView.total_wRVUs)}" />
+						</p:row>
+					</p:columnGroup>
+
+				</p:dataTable>
+
+
+				<div class="actionButtons">
+
+					<p:commandButton icon="ui-icon-arrowthickstop-1-s" value="Export"
+						id="idExportButton" ajax="false"
+						disabled="#{empty ljmriTrvuView.list}">
+						<p:dataExporter type="xls" pageOnly="true"
+							postProcessor="#{spreadsheetProcessor.postProcessor}"
+							target="ljTable" fileName="ljmriTrvuViewTableResults" />
+					</p:commandButton>
+				</div>
+
+
+			</h:form>
+		</p:panel>
+
+	</ui:define>
+</ui:composition>

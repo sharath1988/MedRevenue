@@ -1,0 +1,73 @@
+From:	Yebba, Michael
+Sent:	Wednesday, May 25, 2016 3:56 PM
+To:	Strout, Glenn; O'Donnell, Edward
+Cc:	Kaino, Cheryl
+Subject:	Production Database Modification vchs-budget_20160525_v3
+
+Date of Request:
+5/25/2016
+ 
+Requested date/time of the release:
+As soon as possible. This is urgent.
+ 
+What database needs to be modified?
+Vchs-budget 
+ 
+Reason(s) for the change ? Need to fix proc for Clinical Benefits since it was dropping payroll codes 
+with leading 0’s.
+
+Does this affect a TableSync job? No
+ 
+Before the release should the entire database be backed up  ? No.
+ 
+Before the release should specific database tables be backed up ? No.
+
+
+List the step-by-step release process.
+
+
+use [vchs-budget]
+GO
+drop view [dbo].[v_refresh_109]
+GO
+CREATE VIEW [dbo].[v_refresh_109] as
+select v1.division_id as divisionId, 
+    cast (sum(v1.benefit_amt) as decimal(24,4)) as input_amount
+from [vchs-budget].dbo.mv_faculty_salaries_and_benefits as v1
+where v1.fund in ('60105A','60109A')
+group by v1.division_id
+union
+select somDivisionId as divisionId, 
+    cast (sum(totalBenefitsPlusOTDiffStipend) as decimal(24,4)) as input_amount
+from [vchs-staffing].dbo.V_ACAD_STAFFING_INDEX 
+where FinManLineItemId in ('101','102')
+AND fund in ('60105A','60109A')
+group by somDivisionId
+GO
+
+Is this part of an application update/release ?
+No.
+ 
+What testing was done to ensure the success of this release?
+Testing was done on dev and qa
+ 
+Describe how to determine the success of the release
+
+The values of these queries SHOULD equal but data is constantly changing so you may have to run it a 
+few times.
+
+/*
+Expected Result:
+
+clinBenAmtForPsych    
+ --------------------- 
+ 2234544.3926
+*/
+select sum(input_amount) as clinBenAmtForPsych from v_refresh_109 where divisionId=22
+/
+
+
+Provide SVN location where this document should be saved.
+/svnroot/medgrp-revenue/trunks/documentation
+ 
+ 

@@ -1,0 +1,97 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:p="http://primefaces.org/ui" template="/layout/template_wide.xhtml">
+	
+	<ui:define name="metadata">
+		<f:metadata>
+			<f:viewParam name="divisionId" value="#{medGrpRevenueWorksheetController.divisionId}"/>
+			<f:viewParam name="divisionId" value="#{revenueProviderSplitView.divisionId}" />
+			<f:viewParam name="divisionId" value="#{otherIncomeView.divisionId}"/>
+			<f:viewParam name="divisionId" value="#{divisionInfoBean.divisionId}"/>
+			<f:viewParam name="divisionId" value="#{addProviderView.divisionId}"/>
+			<f:viewParam name="divisionId" value="#{addFutureEmployeeView.divisionId}"/>
+			<f:viewParam name="divisionId" value="#{revenueAdjustmentsView.divisionId}"/>
+			<f:viewParam name="divisionId" value="#{carePaymentsView.divisionId}"/>
+			<f:viewAction action="#{medGrpRevenueWorksheetController.loadWorksheet}"/>
+			<f:viewAction action="#{revenueProviderSplitView.loadData}"/>
+			<f:viewAction action="#{otherIncomeView.load}"/>
+			<f:viewAction action="#{revenueAdjustmentsView.loadData}"/>
+			<f:viewAction action="#{carePaymentsView.loadData}"/>
+		</f:metadata>
+	</ui:define>	
+	
+	<ui:define name="body">
+		<h:outputScript library="theme" name="js/worksheet.js" target="head" />
+		<h:outputScript library="theme" name="js/searchFilter.js" target="head" />
+		<p:breadCrumb >
+			<p:menuitem url="#{menuBean.vchsBudgetModuleUrl}/views/acadhs/budget-rollup/division.html?divisionId=#{divisionInfoBean.divisionInfo.divisionId}" />
+			<p:menuitem value="#{divisionInfoBean.divisionInfo.departmentName}" url="department.html?departmentId=#{divisionInfoBean.divisionInfo.departmentId}" />
+			<p:menuitem value="#{divisionInfoBean.divisionInfo.divisionName}" url="#" />
+		</p:breadCrumb>		
+				
+		<!-- No access view -->
+		<p:outputPanel rendered="#{not medGrpRevenueWorksheetController.userPermitted}">
+			Sorry, you do not have access to this worksheet.
+		</p:outputPanel>	
+		
+		<p:messages severity="warn,error,fatal" id="msg"/>
+		
+		<p:growl id="saveStatus" globalOnly="true" showDetail="true"/>
+		
+		<!-- Otherwise show them the page -->		
+		<p:outputPanel rendered="#{medGrpRevenueWorksheetController.userPermitted}" id="container">
+		
+		<p:tabView id="tabView" widgetVar="tabViewWV" onTabChange="$.tab.change(index);">
+			<p:tab title="#{budgetMetadata.currentBudgetYearLabel} PROJECTIONS" id="revenueProjTab">
+				
+				<f:subview id="providerTotalForm">
+					<ui:include src="providerTotal.xhtml" />
+				</f:subview>
+				
+				<br/>
+				
+				<f:subview id="paymentInformationForm">
+					<ui:include src="paymentInformation.xhtml" />
+				</f:subview>
+														
+			</p:tab>
+			
+			<p:tab title="#{budgetMetadata.currentBudgetYearLabel} CARE PAYMENTS" id="cpTab" rendered="#{divisionInfoBean.renderCarePaymentsTabForDivision}">
+				
+				<f:subview id="carePaymentsForm">
+					<ui:include src="carepayments.xhtml" />		
+				</f:subview>
+			</p:tab>			
+			
+			<p:tab title="#{budgetMetadata.currentBudgetYearLabel} ADJUSTMENTS" id="adjTab" rendered="#{divisionInfoBean.renderAdjustmentsTabForDivision}">
+				
+				<f:subview id="adjustmentsForm">
+					<ui:include src="adjustments.xhtml" />		
+				</f:subview>
+			</p:tab>				
+			
+			<p:tab title="#{budgetMetadata.priorBudgetYearLabel} PROVIDER SPLIT">
+				
+				<f:subview id="providerSplitForm">
+					<ui:include src="providerSplit.xhtml" />		
+				</f:subview>
+			</p:tab>
+			
+			<p:tab title="#{budgetMetadata.currentBudgetYearLabel} OTHER INCOME" id="otherIncomeTab">
+				<f:subview id="otherIncome">
+					<ui:include src="otherIncome.xhtml" />
+				</f:subview>
+			</p:tab>
+		</p:tabView>		
+		<!-- GLOBAL confirm dialog -->
+	    <p:confirmDialog global="true" showEffect="fade" hideEffect="explode">
+	        <p:commandButton value="Yes" type="button" styleClass="ui-confirmdialog-yes" icon="ui-icon-check" />
+	        <p:commandButton value="No" type="button" styleClass="ui-confirmdialog-no" icon="ui-icon-close" />					        
+	    </p:confirmDialog>
+		</p:outputPanel>	
+		<ui:include src="addProviderDialog.xhtml"/>
+		<ui:include src="addFutureEmployeeDialog.xhtml"/>
+	</ui:define>
+</ui:composition>

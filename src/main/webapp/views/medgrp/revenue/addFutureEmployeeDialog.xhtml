@@ -1,0 +1,174 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:p="http://primefaces.org/ui">
+	<p:dialog id="addFutureEmployeeDialog" 
+				header="Add Future Employee to Worksheet"
+				widgetVar="addFutureEmployeeDialogVar" 
+				styleClass="add-provider-overlay" 
+				hideEffect="fade" 
+				draggable="false" 
+				resizable="false"
+				modal="true">
+		<h:form id="tbn">
+			<p:messages severity="warn,error,fatal" id="msg"/>
+			<div class="add-provider-section">
+				<script>
+					centerFutureEmployeeDialog();
+				</script>
+				<h:panelGrid columns="2">
+					<h:panelGrid columns="2" class="add-provider" id="baseFields">
+						<h:outputLabel 
+							for="firstName" 
+							value="First name (*):"/>
+						<p:inputText id="firstName" required="true" requiredMessage="First name is required." value="#{addFutureEmployeeView.firstName}">
+							<p:ajax/>
+						</p:inputText>
+						
+						<h:outputLabel for="middleName" value="Middle name:"/>
+						<p:inputText id="middleName" value="#{addFutureEmployeeView.middleName}">
+							<p:ajax/>
+						</p:inputText>
+						
+						<h:outputLabel 
+							for="lastName" 
+							value="Last name (*):"/>
+						<p:inputText id="lastName" required="true" requiredMessage="Last name is required." value="#{addFutureEmployeeView.lastName}">
+							<p:ajax/>
+						</p:inputText>
+						
+						<h:panelGroup>
+							<h:outputLabel for="homeDepartment" value="Home department (*):"/>
+							<h:outputText
+								id="homeDepartmentTooltip"
+								title="Begin typing a department name and then select the desired department from the popup."
+								styleClass="ui-icon ui-icon-info" style="display: inline-block;"/>
+						</h:panelGroup>
+						<p:autoComplete 
+							id="homeDepartment" 
+							var="department" 
+							forceSelection="true" 
+							itemLabel="#{department.departmentName}"
+							itemValue="#{department}"
+							converter="#{addFutureEmployeeDepartmentConverter}"
+							emptyMessage="No results found."
+							required="true"
+							requiredMessage="Home department is required."
+							completeMethod="#{addFutureEmployeeView.departmentAutoComplete}" 
+							value="#{addFutureEmployeeView.department}">
+							<p:ajax event="itemSelect" process="@this" update="@this"/>
+						</p:autoComplete>
+						
+						<h:outputLabel value="Care Payment Rate (*)" for="carePaymentRateTxt"/>
+						<p:inputText value="#{addFutureEmployeeView.carePaymentRate}" required="true" requiredMessage="Care Payment rate is required." id="carePaymentRateTxt">
+							<p:ajax/>
+						</p:inputText>
+							
+						<h:outputLabel value="Type (*):" for="futureEmployeeType"/>
+						<p:selectOneMenu
+							id="futureEmployeeType"
+							required="true"
+							requiredMessage="Type is required."
+							value="#{addFutureEmployeeView.futureEmployee.futureEmployeeType}">
+							<p:ajax update="@form"/>
+							<f:selectItem itemLabel="Select One" itemValue=""/>
+							<f:selectItems value="#{addFutureEmployeeView.futureEmployeeTypes}"/>
+						</p:selectOneMenu>
+											
+						<h:outputLabel rendered="#{divisionInfoBean.divisionInfo.isPsychiatry}" for="siteOfService" value="Site of Service (*):"/>
+						<p:selectOneMenu 
+							id="siteOfService"
+							rendered="#{divisionInfoBean.divisionInfo.isPsychiatry}" 
+							required="true" 
+							requiredMessage="Site of service is required."
+							value="#{addFutureEmployeeView.siteOfService}">
+							<f:selectItem itemLabel="Select One" itemValue=""/>
+							<f:selectItems value="#{addFutureEmployeeView.siteOfServiceValues}"/>
+							<p:ajax/>
+						</p:selectOneMenu>
+						
+						<h:outputLabel value="Required = (*)"/>
+					</h:panelGrid>
+					<h:panelGrid columns="2" id="facultyFields" rendered="#{addFutureEmployeeView.showFacultyFields}">
+						<h:outputLabel rendered="#{addFutureEmployeeView.showFacultyFields}" for="degree" value="Degree (*):"/>
+						<p:selectOneMenu
+							id="degree"
+							rendered="#{addFutureEmployeeView.showFacultyFields}"
+							required="true"
+							requiredMessage="Degree is required for future faculty employees."
+							value="#{addFutureEmployeeView.futureEmployee.facultyEmployeeInfo.degree}">
+							<f:selectItem itemLabel="Select One" itemValue=""/>
+							<f:selectItems value="#{addFutureEmployeeView.degreeValues}"/>
+							<p:ajax/>
+						</p:selectOneMenu>
+						
+						<h:outputLabel rendered="#{addFutureEmployeeView.showFacultyFields}" for="compPlan" value="Comp Plan (*):"/>
+						<p:selectOneMenu
+							id="compPlan"
+							rendered="#{addFutureEmployeeView.showFacultyFields}"
+							required="true"
+							requiredMessage="Comp plan is required for future faculty employees."
+							value="#{addFutureEmployeeView.futureEmployee.facultyEmployeeInfo.compPlan}">
+							<f:selectItem itemLabel="Select One" itemValue=""/>
+							<f:selectItems value="#{addFutureEmployeeView.compPlanValues}"/>
+							<p:ajax/>
+						</p:selectOneMenu>
+											
+						<h:outputLabel rendered="#{addFutureEmployeeView.showFacultyFields}" for="rank" value="Rank (*):"/>
+						<p:selectOneMenu
+							id="rank"
+							rendered="#{addFutureEmployeeView.showFacultyFields}"
+							required="true"
+							requiredMessage="Rank is required for future faculty employees."
+							value="#{addFutureEmployeeView.futureEmployee.facultyEmployeeInfo.rank}">
+							<f:selectItem itemLabel="Select One" itemValue=""/>
+							<f:selectItems value="#{addFutureEmployeeView.rankValues}"/>
+							<p:ajax/>
+						</p:selectOneMenu>
+											
+						<h:outputLabel rendered="#{addFutureEmployeeView.showFacultyFields}" for="step" value="Step (*):"/>
+						<p:selectOneMenu
+							id="step"
+							rendered="#{addFutureEmployeeView.showFacultyFields}"
+							required="true"
+							requiredMessage="Step is required for future faculty employees."
+							value="#{addFutureEmployeeView.futureEmployee.facultyEmployeeInfo.step}">
+							<f:selectItem itemLabel="Select One" itemValue=""/>
+							<f:selectItems value="#{addFutureEmployeeView.stepValues}"/>
+							<p:ajax/>
+						</p:selectOneMenu>
+						
+						<h:outputLabel rendered="#{addFutureEmployeeView.showFacultyFields}" for="offScale" value="Off Scale (*):"/>
+						<p:selectBooleanCheckbox 
+							id="offScale"
+							rendered="#{addFutureEmployeeView.showFacultyFields}" 
+							value="#{addFutureEmployeeView.futureEmployee.facultyEmployeeInfo.offScale}">
+							<p:ajax/>
+						</p:selectBooleanCheckbox>
+						
+						<h:outputLabel rendered="#{addFutureEmployeeView.showFacultyFields}" for="appointment" value="Appointment Percentage (%) (*):"/>
+						<p:inputText 
+							id="appointment" 
+							rendered="#{addFutureEmployeeView.showFacultyFields}"
+							required="true" 
+							requiredMessage="Appointment percentage is required for faculty employees." 
+							value="#{addFutureEmployeeView.futureEmployee.facultyEmployeeInfo.appointment}">
+							<f:validateDoubleRange minimum="0" maximum="100"/>
+							<p:ajax/>
+						</p:inputText>
+					</h:panelGrid>
+				</h:panelGrid>
+				<p:commandButton 
+					id="addTbnBtn"
+					value="Add to Worksheet" 
+					actionListener="#{addFutureEmployeeView.add}" 
+					onstart="PF('blockWV').show();" 
+					oncomplete="if (args &amp;&amp; !args.validationFailed) { PF('addFutureEmployeeDialogVar').hide(); $.fn.clearFilter(); PF('blockWV').hide(); }"
+					resetValues="true"
+					update=":container,msg,:saveStatus,@form"
+				/>
+			</div>
+		</h:form>
+	</p:dialog>
+</ui:composition>

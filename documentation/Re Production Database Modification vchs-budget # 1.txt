@@ -1,0 +1,299 @@
+From:	Kaino, Cheryl
+Sent:	Thursday, May 05, 2016 4:47 PM
+To:	O'Donnell, Edward
+Cc:	Strout, Glenn; Roesler, Paul; Yebba, Michael
+Subject:	Re: Production Database Modification vchs-budget # 1
+
+Follow Up Flag:	Follow up
+Flag Status:	Flagged
+
+Approved
+ 
+On May 5, 2016, at 3:08 PM, O'Donnell, Edward <eodonnell@mail.ucsd.edu> wrote:
+Date of Request:
+5/5/2016
+ 
+Requested date/time of the release:
+As soon as doable.
+ 
+What database needs to be modified?
+Vchs-budget
+ 
+Reason(s) for the change ? One table needs to altered and one proc and several views need to be 
+recreated.
+Does this affect a TableSync job? No
+ 
+Before the release should the entire database be backed up  ? No.
+ 
+Before the release should specific database tables be backed up ? No.
+List the step-by-step release process.
+Run these commands in the vchs-budget DB:
+ 
+alter table mv_faculty_salaries_and_benefits add datagroupId int
+/
+drop procedure [dbo].[p_fetch_salary_benefit]
+/
+CREATE PROCEDURE [dbo].[p_fetch_salary_benefit]
+AS BEGIN
+/*  This proc refreshes the faculty salaries and benefits from salpro.
+    It then fetches data for lineItemIds 101,106 for both datagroups
+*/
+-- clear and then fill table
+                TRUNCATE TABLE [vchs-budget].dbo.mv_faculty_salaries_and_benefits;
+                INSERT INTO [vchs-budget].dbo.mv_faculty_salaries_and_benefits
+                                (   datagroupId,
+            major_group_id,
+                                                department_id, 
+                                                department_name, 
+                                                division_id, 
+                                                division_name, 
+                                                organization, 
+                                                ucsdId, 
+                                                allEmployeeId, 
+                                                dosCode, 
+                                                [percent], 
+                                                rank_series_step, 
+                                                compensationPlan,
+                                                employee_fullname,
+                                                mission_id,
+                                                componentCode,
+                                                fundTypeId,
+                                                idx,
+                                                fund,
+                                                program,
+                                                ef_fund,
+                                                periodAmount,
+                                                benefit_perc,
+                                                benefit_amt,
+                                                salary_and_benefits_amt
+                                )
+                                SELECT 
+            v.datagroup,
+            v.major_group_id,
+                                                v.department_id, 
+                                                v.department_name, 
+                                                v.division_id, 
+                                                v.division_name, 
+                                                v.organization, 
+                                                v.ucsdId, 
+                                                v.allEmployeeId, 
+                                                v.dosCode, 
+                                                v.[percent], 
+                                                v.rank_series_step, 
+                                                v.compensationPlan,
+                                                v.employee_fullname,
+                                                v.mission_id,
+                                                v.componentCode,
+                                                v.fundTypeId,
+                                                v.idx,
+                                                v.fund,
+                                                v.program,
+                                                v.ef_fund,
+                                                v.periodAmount,
+                                                v.benefit_perc,
+                                                v.benefit_amt,
+                                                periodAmount + benefit_amt
+                                FROM [vchs-budget].dbo.v_faculty_salaries_and_benefits_dg v where v.division_id > 
+0;
+ 
+        -- done refresh
+DECLARE @DataTable AS BudgetValueTableType;
+DECLARE @LineItemId int;
+DECLARE @datagroupId int;
+SET @datagroupId = 0;
+SET @LineItemId = 101;
+ 
+    -- ---------- START AHS DG=0
+    -- start salary
+    INSERT INTO @DataTable(missionId, divisionId, input_amount, datagroupId)
+    select missionId, divisionId, sum(input_amount) as input_amount, @datagroupId as datagroupId
+    from 
+    (
+                SELECT
+        mission_id AS missionId,
+                                division_id AS divisionId,
+                                CAST(sum(periodAmount) AS DECIMAL(20,4)) AS input_amount,
+        @datagroupId as datagroupId
+                FROM  [vchs-budget].dbo.mv_faculty_salaries_and_benefits
+    where datagroupId = @datagroupId
+    group by mission_id, division_id
+    union
+    select 
+    missionId, 
+    somDivisionId as divisionId, 
+    CAST(sum(totalSalaryPlusOTDiffStipend) AS DECIMAL(20,4))  as input_amount,
+    @datagroupId as datagroupId
+    from [vchs-staffing].dbo.V_ACAD_STAFFING_INDEX 
+    where FinManLineItemId = 101
+    group by missionId, somDivisionId
+    ) s
+    group by s.missionId, s.divisionId
+    order by s.divisionId, s.missionId;
+ 
+    /* call the proc: [dbo].[p_check_budget] to make sure
+        the budget table and the budgetValue table have the existing
+        values */ 
+    exec [dbo].[p_check_budget] @DataTable, @LineItemId, @datagroupId;
+ 
+    DELETE FROM @DataTable;
+    -- end salary for AHS DG=0
+    -- get the benefit data: LineItemId = 106
+    SET @LineItemId = 106;
+ 
+    INSERT INTO @DataTable(missionId, divisionId, input_amount, datagroupId)
+    select missionId, divisionId, sum(input_amount) as input_amount, @datagroupId as datagroupId
+    from 
+    (
+                SELECT
+        mission_id AS missionId,
+                                division_id AS divisionId,
+                                CAST(sum(benefit_amt) AS DECIMAL(20,4)) AS input_amount,
+        @datagroupId as datagroupId
+                FROM  [vchs-budget].dbo.mv_faculty_salaries_and_benefits
+    where datagroupId = @datagroupId
+    group by mission_id, division_id
+    union
+    select 
+    missionId, 
+    somDivisionId as divisionId, 
+    CAST(sum(totalBenefitsPlusOTDiffStipend) AS DECIMAL(20,4))  as input_amount,
+    @datagroupId as datagroupId
+    from [vchs-staffing].dbo.V_ACAD_STAFFING_INDEX 
+    where FinManLineItemId = 101
+    group by missionId, somDivisionId
+    ) s
+    group by s.missionId, s.divisionId
+    order by s.divisionId, s.missionId;
+ 
+    /* call the proc: [dbo].[p_check_budget] to make sure
+        the budget table and the budgetValue table have the existing
+        values */ 
+    exec [dbo].[p_check_budget] @DataTable, @LineItemId, @datagroupId;
+ 
+    DELETE FROM @DataTable;
+        
+    -- end benefit
+    --  ---------- DONE AHS DG=0
+ 
+    -- ---------- Start MedGrp DG=1, Salary
+    SET @datagroupId = 1;
+    SET @LineItemId = 101;
+    INSERT INTO @DataTable(missionId, divisionId, input_amount, datagroupId)
+                SELECT
+        missionId,
+                                divisionId,
+                                SUM(input_amount) as input_amount,
+        @datagroupId as datagroupId
+                FROM  [vchs-budget].dbo.v_medgrp_101
+    group by missionId,divisionId;
+ 
+    /* call the proc: [dbo].[p_check_budget] to make sure
+        the budget table and the budgetValue table have the existing
+        values */ 
+    exec [dbo].[p_check_budget] @DataTable, @LineItemId, @datagroupId;
+                                
+    DELETE FROM @DataTable;
+    -- end salary 
+    -- get the benefit data: LineItemId = 106
+    SET @LineItemId = 106;
+ 
+    INSERT INTO @DataTable(missionId, divisionId, input_amount, datagroupId)
+                SELECT
+        missionId,
+                                divisionId,
+                                SUM(input_amount) as input_amount,
+        @datagroupId as datagroupId
+                FROM  [vchs-budget].dbo.v_medgrp_106
+    group by missionId,divisionId
+                
+ 
+    /* call the proc: [dbo].[p_check_budget] to make sure
+        the budget table and the budgetValue table have the existing
+        values */ 
+    exec [dbo].[p_check_budget] @DataTable, @LineItemId, @datagroupId;
+        
+    -- end benefit
+    --  ---------- DONE MEDGRP
+    -- run extra salpro updater proc
+    exec dbo.p_fetch_dept_clinical_benefit;
+    -- run salpro items 1,14,301
+    exec dbo.p_fetch_salpro_income;
+    -- run medgrp staffing
+    exec dbo.p_fetch_medgrp_staffing;
+ 
+END;
+GO
+/
+ 
+drop view [dbo].[v_medgrp_101]
+/
+CREATE VIEW [dbo].[v_medgrp_101] AS
+SELECT
+       fsb.mission_id AS missionId,
+                                fsb.division_id AS divisionId,
+                                CAST(sum(fsb.periodAmount) AS DECIMAL(20,4)) AS input_amount
+                FROM  [vchs-budget].dbo.mv_faculty_salaries_and_benefits fsb
+    where datagroupId = 1
+    group by fsb.mission_id,fsb.division_id
+union
+select 
+2 as missionId, division_id as divisionId, total_annual_salary as input_amount
+FROM [vchs-budget].dbo.V_MEDGRP_STAFFING_BY_DIV msd
+where msd.FinManLineItemId=101 and msd.division_id is not null
+GO
+/
+ 
+drop view [dbo].[v_medgrp_106]
+/
+CREATE VIEW [dbo].[v_medgrp_106] AS
+SELECT
+       fsb.mission_id AS missionId,
+                                fsb.division_id AS divisionId,
+                                CAST(sum(fsb.benefit_amt) AS DECIMAL(20,4)) AS input_amount
+                FROM  [vchs-budget].dbo.mv_faculty_salaries_and_benefits fsb
+    where datagroupId = 1
+    group by fsb.mission_id,fsb.division_id
+union
+select 
+2 as missionId, division_id as divisionId, total_annual_benefits as input_amount
+FROM [vchs-budget].dbo.V_MEDGRP_STAFFING_BY_DIV msd
+where msd.FinManLineItemId in (101,106) and msd.division_id is not null
+GO
+/
+drop view [dbo].[v_refresh_109]
+/
+CREATE VIEW [dbo].[v_refresh_109] as
+    select v1.division_id as divisionId, 
+        cast (sum(v1.benefit_amt) as decimal(24,4)) as input_amount
+    from [vchs-budget].dbo.mv_faculty_salaries_and_benefits as v1
+    where v1.fund in ('60105A','60109A')
+    group by v1.division_id
+union
+    select somDivisionId as divisionId, 
+        cast (sum(totalBenefitsPlusOTDiffStipend) as decimal(24,4)) as input_amount
+    from [vchs-staffing].dbo.V_ACAD_STAFFING_INDEX 
+    where payrollTitleCode in (select titleCode from FinManStaging.dbo.titleCodeGrouping where 
+FinManLineItemId in ('101','102'))
+    AND fund in ('60105A','60109A')
+    group by somDivisionId
+GO
+/
+ 
+Is this part of an application update/release ?
+No.
+ 
+What testing was done to ensure the success of this release?
+Testing was done on dev and qa
+ 
+Describe how to determine the success of the release
+Run these queries, they should all run fine.
+ 
+1.	exec p_fetch_salary_benefit
+2.	select distinct datagroupId from [vchs-budget].dbo.mv_faculty_salaries_and_benefits
+3.	select * from [dbo].[v_medgrp_101]
+4.	select * from [dbo].[v_medgrp_106]
+5.	select * from [dbo].[v_refresh_109]
+Provide SVN location where this document should be saved.
+/svnroot/medgrp-revenue/trunks/documentation
+ 
+ 

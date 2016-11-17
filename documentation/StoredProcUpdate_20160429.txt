@@ -1,0 +1,56 @@
+From:	Kaino, Cheryl
+Sent:	Friday, April 29, 2016 2:14 PM
+To:	O'Donnell, Edward
+Cc:	Strout, Glenn; Roesler, Paul; Yebba, Michael
+Subject:	Re: Production Database Modification vchs-budget
+
+Approved
+ 
+On Apr 29, 2016, at 2:12 PM, O'Donnell, Edward <eodonnell@mail.ucsd.edu> wrote:
+Date of Request:
+4/28/2016
+ 
+Requested date/time of the release:
+As soon as doable.
+ 
+What database needs to be modified?
+Vchs-budget
+ 
+Reason(s) for the change ? one proc needs to be created. 
+Does this affect a TableSync job? No
+ 
+Before the release should the entire database be backed up  ? No.
+ 
+Before the release should specific database tables be backed up ? No.
+List the step-by-step release process.
+ 
+2 sql files are in: (check date to make sure they are dated at 4/29/2016)
+ 
+‘/mnt/nwserver/dmgdb/BADG/ApplicationDevelopment/Files/ToBeDeployed/vchs-budget/vchs-
+budget.commit.sql’
+‘/mnt/nwserver/dmgdb/BADG/ApplicationDevelopment/Files/ToBeDeployed/vchs-budget/vchs-
+budget.rollback.sql’
+ 
+ 
+1.       In the vchs-budget DB on the ms production server, run the vchs-budget.commit.sql . It has a 
+drop command and then a create command for one proc. (total of 2 commands) If it fails, run 
+the 2nd command: vchs-budget.rollback.sql
+ 
+ 
+Is this part of an application update/release ?
+No.
+ 
+What testing was done to ensure the success of this release?
+Testing was done on dev and qa
+ 
+Describe how to determine the success of the release
+Run this query.  
+ 
+1.       exec p_fetch_salary_benefit
+ 
+ 
+ 
+Provide SVN location where this document should be saved.
+/svnroot/medgrp-revenue/trunks/documentation
+ 
+ 

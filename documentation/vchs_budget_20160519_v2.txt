@@ -1,0 +1,70 @@
+From:	O'Donnell, Edward
+Sent:	Thursday, May 19, 2016 4:10 PM
+To:	Strout, Glenn; Yebba, Michael
+Cc:	Kaino, Cheryl; Roesler, Paul
+Subject:	Production Database Modification vchs-budget #2
+
+Date of Request:
+5/19/2016
+ 
+Requested date/time of the release:
+As soon as doable.
+ 
+What database needs to be modified?
+Vchs-budget 
+ 
+Reason(s) for the change ? stale data in lineitem=105, DG=1 is stale and needs to be redone. 
+
+Does this affect a TableSync job? No
+ 
+Before the release should the entire database be backed up  ? No.
+ 
+Before the release should specific database tables be backed up ? no.
+List the step-by-step release process.
+
+
+Run these commands in the vchs-budget DB:
+
+update bv
+set bv.CalculatedValue =0
+from dbo.BudgetValue bv 
+inner join budget b on bv.BudgetId=b.BudgetId
+where bv.LineItemId = 105
+and b.datagroupId = 1
+/
+exec p_fetch_medgrp_staffing
+/
+
+
+Is this part of an application update/release ?
+No.
+ 
+What testing was done to ensure the success of this release?
+Testing was done on dev and qa
+ 
+Describe how to determine the success of the release
+
+This query should also return one row, or if two rows, very very close:
+
+SELECT
+        CAST(SUM(total_annual_salary)  AS DECIMAL(24,4)) AS input_amount
+    FROM [vchs-budget].dbo.V_MEDGRP_STAFFING_BY_DIV
+    where FinManLineItemId IN (105)
+    and division_id is not null
+union
+select 
+sum(bv.CalculatedValue) as input_amount
+from BudgetValue bv 
+inner join Budget b on bv.BudgetId=b.BudgetId
+where bv.LineItemId = 105
+and b.datagroupId=1
+and bv.MissionId = 2
+/
+
+
+/
+
+Provide SVN location where this document should be saved.
+/svnroot/medgrp-revenue/trunks/documentation
+ 
+ 

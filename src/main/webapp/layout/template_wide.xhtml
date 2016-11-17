@@ -1,0 +1,73 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<f:view xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:p="http://primefaces.org/ui"
+	contentType="text/html">
+
+	<h:html>
+	<h:head>
+		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+		<meta http-equiv="X-UA-Compatible" content="IE=EmulateIE8" />
+		<title>MedGrp Revenue</title>
+		<link rel="shortcut icon" href="#{request.contextPath}/favicon.ico" />
+		<h:outputStylesheet library="theme" name="css/theme.css" />
+		<h:outputStylesheet library="theme" name="css/som.css" />
+		<h:outputStylesheet library="theme" name="css/base-min.css" />
+		<h:outputStylesheet library="theme" name="css/home-page-wide.css" />
+		<h:outputStylesheet library="theme" name="css/budget.css" />
+		
+	</h:head>
+	<h:body id="body">
+		<h:outputScript library="omnifaces" name="fixviewstate.js"
+			target="head" />
+		<div id="tdr_title">
+			<div id="tdr_title_content">
+                <h:link value="UC San Diego" id="tdr_title_ucsd_title"/>
+				<div id="tdr_title_page_title">
+					<h:link value="MedGrp Revenue" id="tdr_title_medgrprevenue_title"/>
+					<h:outputText value=" - Testing Server - " style="background: lime; color: #FF0000;" rendered="#{appInfo.testServer}"/>
+				</div>
+
+			</div>
+			<div class="badg_login">
+				<h:outputText value="#{badgIdentity.user.fullName} "
+					rendered="#{badgIdentity.loggedIn}" />
+				<h:outputText value="Not logged in" rendered="#{!badgIdentity.loggedIn}"/>
+			</div>
+		</div>
+		<div class="badg_nav" style="max-width:1260px">
+			<ui:include src="/layout/idleout.xhtml" />
+			<!-- MENU START -->
+			<ui:include src="menu.xhtml">
+				<ui:param name="projectName" value="budget" />
+			</ui:include>
+			<!-- MENU END -->
+		</div>
+
+		<div class="tdr_fonts" id="tdr_content">
+			<div id="tdr_content_content" style="max-width:1260px">
+				<!-- display the main content -->
+				<div class="main-container">
+					<ui:insert name="body" />
+				</div>
+			</div>
+		</div>
+		<div id="tdr_footer">
+			<div id="tdr_footer_content">
+				<div id="tdr_address">
+Health Sciences Human Resources | UC San Diego, Health Sciences 			
+				</div>
+				<div id="tdr_copyright">
+T: 619-543-3200 | F: 858-534-8679 | Mail Code 8912 | <a href="mailto:myHSHR@ucsd.edu">myHSHR@ucsd.edu</a>                 
+				</div>
+				<script src="http://www-act.ucsd.edu/decorators/js/decorator.js"
+					type="text/javascript"></script>
+			</div>
+		</div>
+
+	</h:body>
+	</h:html>
+
+</f:view>

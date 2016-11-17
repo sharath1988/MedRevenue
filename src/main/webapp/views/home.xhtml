@@ -1,0 +1,92 @@
+<ui:composition
+		xmlns="http://www.w3.org/1999/xhtml"
+		xmlns:ui="http://java.sun.com/jsf/facelets"
+		xmlns:f="http://java.sun.com/jsf/core"
+		xmlns:h="http://java.sun.com/jsf/html"
+		xmlns:p="http://primefaces.org/ui"
+		template="/layout/template.xhtml">
+
+	<ui:define name="body">
+		<div class="layoutContent">
+			<div class="body" style="vertical-align: center">
+
+
+				<p:panel>
+		            <h:panelGrid columns="2">
+		                <h1>USCD Health Sciences</h1>
+		                <h2>SOM Wildfly Web Archetype</h2>
+		                <h3>Use the menus above for navigation.</h3>
+		            </h:panelGrid>
+		            
+		
+		
+				<hr />
+								
+				<h:form id="reg">
+			         <h2>Member Registration</h2>
+			         <p>Enforces annotation-based constraints defined on the model class.</p>         
+			         <h:panelGrid id="grid" columns="3">
+			            <p:outputLabel for="name" value="Name:"/>
+			            <p:inputText id="name" value="#{newMember.name}" />
+						<p:message for="name"/>
+						
+			            <p:outputLabel for="email" value="Email:"/>
+			            <p:inputText id="email" value="#{newMember.email}"/>
+			            <p:message for="email"/>
+			
+			            <p:outputLabel for="phoneNumber" value="Phone #:"/>
+			            <p:inputMask id="phoneNumber" value="#{newMember.phoneNumber}" mask="(999) 999-9999"/>
+			            <p:message for="phoneNumber"/>
+			         </h:panelGrid>
+			         
+			<br/>
+					<p:growl id="growl" showDetail="true" sticky="true" globalOnly="true"/>  
+					
+			         <p>
+			            <h:panelGrid columns="2">
+			         	   <p:commandButton 
+			         	   		id="btnRegister" 
+			         	   		action="#{memberController.register}" 
+			         	   		value="Register" 
+			         	   		styleClass="register" 
+			         	   		update="grid,growl" 
+			         	   		ajax="false"/>
+			            </h:panelGrid>
+			            
+			         </p>
+			         
+			      </h:form>
+			      
+			      <hr/>
+			      <h2>Members</h2>
+			      <h:panelGroup rendered="#{empty members}">
+			         <em>No registered members.</em>
+			      </h:panelGroup>      
+			      <p:dataTable var="varMember" value="#{members}" rendered="#{not empty members}" style="width: 800px;" cellpadding="2" cellspacing="2">
+			      	<p:column headerText="Id">
+			      		<h:outputText value="#{varMember.id}" />
+			      	</p:column>
+			      	<p:column headerText="Name">
+			      		<h:outputText value="#{varMember.name}" />
+			      	</p:column>
+			      	<p:column headerText="Email" width="150">
+			      		<h:outputText value="#{varMember.email}" />
+			      	</p:column>
+			      	<p:column headerText="Phone #" width="80">
+			      		<h:outputText value="#{varMember.phoneNumber}" />
+			      	</p:column>
+			      	<p:column headerText="REST URL">
+			      		<a href="#{request.contextPath}/rest/members/#{varMember.id}">/rest/members/#{varMember.id}</a>		
+			      	</p:column>
+			         <f:facet name="footer">
+			            REST URL for all members: <a href="#{request.contextPath}/rest/members">/rest/members</a>
+			         </f:facet>      	
+			      </p:dataTable>
+			      
+			      </p:panel>				
+			</div>
+			
+			
+		</div>
+	</ui:define>
+</ui:composition>

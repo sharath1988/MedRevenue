@@ -1,0 +1,95 @@
+From:	Kaino, Cheryl
+Sent:	Thursday, April 14, 2016 12:37 PM
+To:	Strout, Glenn; Yebba, Michael
+Subject:	RE: Request for Production Modification Budget -mgfs
+
+Approved
+
+From: Strout, Glenn  
+Sent: Thursday, April 14, 2016 12:23 PM 
+To: Kaino, Cheryl; Yebba, Michael 
+Subject: Request for Production Modification Budget -mgfs
+
+Date of Request:
+4/14/2016
+Requested date/time of the release:
+As soon as reasonable
+
+What database needs to be modified?
+mgfs
+Reason(s) for the change ?
+Limit access to cpo users to just the list of cpo indexes 
+
+Does this affect a TableSync job?
+no
+Before the release should the entire database be backed up  ?
+no
+Before the release should specific database tables be backed up ?
+no
+
+List the step-by-step release process.
+
+Run the following: 
+
+
+-- =================================================================
+-- Add any indexes missing for Sean J Clark
+
+delete from emp_index where employee_ucsd_id=147391
+  AND   parent_index  not in (select indx from ScratchPad.cpoMissingIndexes)
+/
+
+
+-- =================================================================
+-- Add any indexes missing for Aaron Peake
+delete from emp_index where employee_ucsd_id=000645163
+  AND   parent_index  not in (select indx from ScratchPad.cpoMissingIndexes)
+/
+
+-- =================================================================
+-- Add any indexes missing for Michael Roulan
+delete from emp_index where employee_ucsd_id=000716633
+  AND   parent_index  not in (select indx from ScratchPad.cpoMissingIndexes)
+/
+-- =================================================================
+-- Add any indexes missing for Lori Donaldson
+delete from emp_index where employee_ucsd_id=000209259
+  AND   parent_index  not in (select indx from ScratchPad.cpoMissingIndexes)
+/
+
+-- =================================================================
+-- Add any indexes missing for Laurel Hansen
+delete from emp_index where employee_ucsd_id=338820
+  AND   parent_index  not in (select indx from ScratchPad.cpoMissingIndexes)
+/
+
+-- =================================================================
+-- Add any indexes missing for HOLLYFIELD, ANDREW REID  
+delete from emp_index where employee_ucsd_id=381009
+  AND   parent_index  not in (select indx from ScratchPad.cpoMissingIndexes)
+/
+
+
+
+Is this part of an application update/release ?
+No
+What testing was done to ensure the success of this release?
+
+Tested on QA.
+
+Describe how to determine the success of the release:
+
+select distinct parent_index from budget.emp_index where employee_ucsd_id in (147391,000645163 ,000716633 ,000209259 
+,338820 ,381009)
+/
+
+Should return 432 indexes
+
+Provide SVN location where this document should be saved.
+/svnroot/mgfs-war/releasedocs
+
+
+Should any databases or tables be removed as a result of these changes?
+NO 
+  
+
